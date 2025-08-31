@@ -1,16 +1,84 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 
-// Import your local data
-import localData from '../../data.json';
+const mockData = {
+  "users": [
+    {
+      "userId": "user_1",
+      "name": "Alex Johnson",
+      "email": "alex.j@example.com",
+      "gender": "Male",
+      "phoneNumber": "555-123-4567",
+      "role": "Supervisor",
+      "is_active": true,
+      "login_method": "email"
+    },
+    {
+      "userId": "user_2",
+      "name": "Sarah Lee",
+      "email": "sarah.l@example.com",
+      "gender": "Female",
+      "phoneNumber": "555-987-6543",
+      "role": "SalesAgent",
+      "supervisor": "Alex Johnson",
+      "is_active": true,
+      "login_method": "email"
+    },
+    {
+      "userId": "user_3",
+      "name": "Michael Chen",
+      "email": "michael.c@example.com",
+      "gender": "Male",
+      "phoneNumber": "555-555-1212",
+      "role": "SalesAgent",
+      "supervisor": "Alex Johnson",
+      "is_active": true,
+      "login_method": "email"
+    },
+    {
+      "userId": "user_4",
+      "name": "Emily Watson",
+      "email": "emily.w@example.com",
+      "gender": "Female",
+      "phoneNumber": "555-222-3333",
+      "role": "Supervisor",
+      "is_active": true,
+      "login_method": "email"
+    },
+    {
+      "userId": "user_5",
+      "name": "David Kim",
+      "email": "david.k@example.com",
+      "gender": "Male",
+      "phoneNumber": "555-777-8888",
+      "role": "SalesAgent",
+      "supervisor": "Emily Watson",
+      "is_active": true,
+      "login_method": "email"
+    },
+    {
+      "userId": "user_6",
+      "name": "Jessica Miller",
+      "email": "jessica.m@example.com",
+      "gender": "Female",
+      "phoneNumber": "555-111-2222",
+      "role": "Admin",
+      "is_active": true,
+      "login_method": "email"
+    }
+  ]
+};
 
 const RegisterUser = () => {
   const [teamMembers, setTeamMembers] = useState([]);
-  const [isLoading, setIsLoading] = useState(false); // Set to false since we're using local data
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
   const [supervisors, setSupervisors] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedMembers, setSelectedMembers] = useState([]);
+  const [isSelectAll, setIsSelectAll] = useState(false);
   const itemsPerPage = 5;
 
   const [newMember, setNewMember] = useState({
@@ -22,11 +90,9 @@ const RegisterUser = () => {
     supervisor: '',
   });
 
-  // Load users from local data instead of API
   const loadUsers = useCallback(() => {
     try {
-      // Use the imported localData directly
-      const users = localData.users || [];
+      const users = mockData.users || [];
       
       const mappedUsers = users.map(item => ({
         id: item.userId,
@@ -70,6 +136,8 @@ const RegisterUser = () => {
 
   useEffect(() => {
     setCurrentPage(1);
+    setSelectedMembers([]);
+    setIsSelectAll(false);
   }, [searchTerm]);
 
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -90,10 +158,67 @@ const RegisterUser = () => {
     setNewMember({ name: '', email: '', gender: '', phoneNumber: '', role: '', supervisor: '' });
   };
 
+  // Handle individual selection
+  const handleSelectMember = (memberId) => {
+    setSelectedMembers(prev => {
+      if (prev.includes(memberId)) {
+        return prev.filter(id => id !== memberId);
+      } else {
+        return [...prev, memberId];
+      }
+    });
+  };
+
+  // Handle select all on current page
+  const handleSelectAll = () => {
+    if (isSelectAll) {
+      setSelectedMembers([]);
+    } else {
+      const currentPageIds = currentMembers.map(member => member.id);
+      setSelectedMembers(currentPageIds);
+    }
+    setIsSelectAll(!isSelectAll);
+  };
+
+  // Handle mass deletion
+  const handleMassDelete = () => {
+    if (selectedMembers.length === 0) {
+      setError("Please select at least one member to delete.");
+      return;
+    }
+
+    if (window.confirm(`Are you sure you want to delete ${selectedMembers.length} team member(s)?`)) {
+      const updatedMembers = teamMembers.filter(member => !selectedMembers.includes(member.id));
+      setTeamMembers(updatedMembers);
+      setSelectedMembers([]);
+      setIsSelectAll(false);
+      setSuccessMessage(`Successfully deleted ${selectedMembers.length} team member(s).`);
+      
+      setTimeout(() => {
+        setSuccessMessage(null);
+      }, 5000);
+    }
+  };
+
+  // Handle single deletion
+  const handleSingleDelete = (memberId, memberName) => {
+    if (window.confirm(`Are you sure you want to delete ${memberName}?`)) {
+      const updatedMembers = teamMembers.filter(member => member.id !== memberId);
+      setTeamMembers(updatedMembers);
+      setSelectedMembers(prev => prev.filter(id => id !== memberId));
+      setSuccessMessage(`Successfully deleted ${memberName}.`);
+      
+      setTimeout(() => {
+        setSuccessMessage(null);
+      }, 5000);
+    }
+  };
+
   const handleAddMemberSubmit = (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
+    setSuccessMessage(null);
 
     if (!newMember.name || !newMember.email || !newMember.role) {
       setError('Name, email, and role are required');
@@ -101,14 +226,12 @@ const RegisterUser = () => {
       return;
     }
 
-    // Check if email already exists
     if (teamMembers.some(member => member.email.toLowerCase() === newMember.email.toLowerCase())) {
       setError('Email already exists');
       setIsLoading(false);
       return;
     }
 
-    // Generate a unique ID for the new user
     const newUserId = `user_${Date.now()}`;
     
     const newUser = {
@@ -119,14 +242,13 @@ const RegisterUser = () => {
       gender: newMember.gender || 'Other',
       role: newMember.role,
       supervisor: newMember.role === 'Supervisor' ? null : (newMember.supervisor === 'N/A' ? null : newMember.supervisor),
-      password: '123456', // Default password for demo
+      password: '123456',
       is_active: true,
       login_method: 'email',
       creationTime: new Date().toISOString(),
       lastSignInTime: new Date().toISOString()
     };
 
-    // Add to local state (in a real app, this would be sent to an API)
     const updatedMembers = [...teamMembers, {
       id: newUserId,
       name: newUser.name,
@@ -139,14 +261,17 @@ const RegisterUser = () => {
     
     setTeamMembers(updatedMembers);
     
-    // Update supervisors list if needed
     if (newUser.role === 'Supervisor' && !supervisors.includes(newUser.name)) {
       setSupervisors(prev => [...prev, newUser.name].sort());
     }
 
-    alert(`User created successfully! Default password: 123456`);
+    setSuccessMessage('User created successfully! Default password: 123456');
     closeModal();
     setIsLoading(false);
+
+    setTimeout(() => {
+      setSuccessMessage(null);
+    }, 5000);
   };
 
   const totalMembersCount = teamMembers.length;
@@ -168,7 +293,7 @@ const RegisterUser = () => {
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: rgba(0, 0, 0, 极0.5);
             z-index: 1000;
           }
           .modal-container {
@@ -181,7 +306,7 @@ const RegisterUser = () => {
             border-radius: 0.5rem;
             z-index: 1001;
             width: 90%;
-            max-width: 600px;
+            max-width: 500px;
             max-height: 90vh;
             overflow-y: auto;
           }
@@ -191,8 +316,17 @@ const RegisterUser = () => {
       <div className="container mx-auto">
         <h1 className="text-3xl font-bold mb-6 text-gray-800">Team Management</h1>
 
+        {successMessage && (
+          <div className="bg-green-100 text-green-800 px-4 py-3 rounded-lg shadow-md mb-6 flex items-center justify-between">
+            <p className="text-sm font-medium">{successMessage}</p>
+            <button onClick={() => setSuccessMessage(null)} className="text-green-800 hover:text-green-900 focus:outline-none">
+              <i className="fas fa-times"></i>
+            </button>
+          </div>
+        )}
+
         {isLoading && (
-          <div className="text-center py-4 text-gray-700">Loading team members...</div>
+          <div className="text-center py-4 text-gray极-700">Loading team members...</div>
         )}
         {error && (
           <div className="text-center py-4 text-red-600 font-medium">{error}</div>
@@ -201,31 +335,31 @@ const RegisterUser = () => {
         {!isLoading && (
           <>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <div className="bg-white p-6 rounded-lg shadow-md flex items-center">
-                <div className="bg-blue-100 text-[#F4C430] rounded-full p-3 mr-4">
+              <div className="bg-[#333333] p-6 rounded-lg shadow-md flex items-center">
+                <div className="text-[#F4A300] rounded-full p-3 mr-4">
                   <i className="fas fa-users text-2xl"></i>
                 </div>
                 <div>
-                  <p className="text-gray-500">Total Members</p>
-                  <p className="text-2xl font-bold text-gray-900">{totalMembersCount}</p>
+                  <p className="text-[#F4A300]">Total Members</p>
+                  <p className="text-2xl font-bold text-[#F4A300]">{totalMembersCount}</p>
                 </div>
               </div>
-              <div className="bg-white p-6 rounded-lg shadow-md flex items-center">
-                <div className="bg-green-100 text-[#F4C430] rounded-full p-3 mr-4">
+              <div className="bg-[#333333] p-6 rounded-lg shadow-md flex items-center">
+                <div className="text-[#F4A300] rounded-full p-3 mr-4">
                   <i className="fas fa-user-tie text-2xl"></i>
                 </div>
                 <div>
-                  <p className="text-gray-500">Supervisors</p>
-                  <p className="text-2xl font-bold text-gray-900">{supervisorsCount}</p>
+                  <p className="text-[#F4A300]">Supervisors</p>
+                  <p className="text-2xl font-bold text-[#F4A300]">{supervisorsCount}</p>
                 </div>
               </div>
-              <div className="bg-white p-6 rounded-lg shadow-md flex items-center">
-                <div className="bg-purple-100 text-[#F4C430] rounded-full p-3 mr-4">
+              <div className="bg-[#333333] p-6 rounded-lg shadow-md flex items-center">
+                <div className="text-[#F4A300] rounded-full p-3 mr-4">
                   <i className="fas fa-user-tag text-2xl"></i>
                 </div>
                 <div>
-                  <p className="text-gray-500">Sales Agents</p>
-                  <p className="text-2xl font-bold text-gray-900">{salesAgentsCount}</p>
+                  <p className="text-[#F4A300]">Sales Agents</p>
+                  <p className="text-2xl font-bold text-[#F4A300]">{salesAgentsCount}</p>
                 </div>
               </div>
             </div>
@@ -259,6 +393,15 @@ const RegisterUser = () => {
                     <i className="fas fa-user-plus mr-2"></i>
                     <span className="hidden sm:inline">Add Member</span>
                   </button>
+                  {selectedMembers.length > 0 && (
+                    <button
+                      onClick={handleMassDelete}
+                      className="bg-red-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-150 ease-in-out flex items-center"
+                    >
+                      <i className="fas fa-trash mr-2"></i>
+                      <span>Delete ({selectedMembers.length})</span>
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -266,18 +409,35 @@ const RegisterUser = () => {
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                      <th className="w-12 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <input
+                          type="checkbox"
+                          checked={isSelectAll}
+                          onChange={handleSelectAll}
+                          className="form-checkbox h-4 w-4 text-[#F4A300] rounded"
+                        />
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium极 text-gray-500 uppercase tracking-wider">Name</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gender</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Supervisor</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {currentMembers.length > 0 ? (
                       currentMembers.map((member) => (
                         <tr key={member.id}>
+                          <td className="w-12 px-4 py-4 whitespace-nowrap">
+                            <input
+                              type="checkbox"
+                              checked={selectedMembers.includes(member.id)}
+                              onChange={() => handleSelectMember(member.id)}
+                              className="form-checkbox h-4 w-4 text-[#F4A300] rounded"
+                            />
+                          </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{member.name}</td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{member.email}</td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm">
@@ -298,11 +458,20 @@ const RegisterUser = () => {
                             </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{member.supervisor}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm">
+                            <button
+                              onClick={() => handleSingleDelete(member.id, member.name)}
+                              className="text-red-600 hover:text-red-900 focus:outline-none"
+                              title="Delete member"
+                            >
+                              <i className="fas fa-trash"></i>
+                            </button>
+                          </td>
                         </tr>
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="6" className="px-6 py-4 text-center text-sm text-gray-500">
+                        <td colSpan="8" className="px-6 py-4 text-center text-sm text-gray-500">
                           No team members found
                         </td>
                       </tr>
@@ -317,7 +486,7 @@ const RegisterUser = () => {
                     <button
                       onClick={() => paginate(currentPage - 1)}
                       disabled={currentPage === 1}
-                      className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+                      className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-极500 hover:bg-gray-50 disabled:opacity-50"
                     >
                       <i className="fas fa-chevron-left"></i>
                     </button>
@@ -355,7 +524,7 @@ const RegisterUser = () => {
             <div className="modal-container">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-bold text-gray-800">Add New Team Member</h2>
-                <button onClick={closeModal} className="text-gray-500 hover:text-gray-700">
+                <button onClick极={closeModal} className="text-gray-500 hover:text-gray-700">
                   <i className="fas fa-times"></i>
                 </button>
               </div>
@@ -366,7 +535,7 @@ const RegisterUser = () => {
                   <input
                     type="text"
                     id="newName"
-                    name="name"
+                    name极="name"
                     value={newMember.name}
                     onChange={handleNewMemberChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#F4A300] focus:border-[#F4A300]"
@@ -383,7 +552,7 @@ const RegisterUser = () => {
                     name="email"
                     value={newMember.email}
                     onChange={handleNewMemberChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#F4A300] focus:border-[#F4A300]"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#F4A300] focus:border-[#F4极A300]"
                     placeholder="Enter Email"
                     required
                   />
@@ -414,7 +583,7 @@ const RegisterUser = () => {
                     name="phoneNumber"
                     value={newMember.phoneNumber}
                     onChange={handleNewMemberChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#F4A300] focus:border-[#F4A300]"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2极 focus:ring-[#F4A300] focus:border-[#F4A300]"
                     placeholder="Phone Number"
                   />
                 </div>
@@ -457,7 +626,7 @@ const RegisterUser = () => {
                   <div className="text-red-500 text-sm">{error}</div>
                 )}
                 
-                <div className="flex justify-end space-x-3 pt-4">
+                <div className="flex justify-end space极-x-3 pt-4">
                   <button
                     type="button"
                     onClick={closeModal}

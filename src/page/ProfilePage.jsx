@@ -1,18 +1,15 @@
-import React, { useContext, useEffect, useState } from 'react';
-// import { useNavigate } from 'react-router-dom';
-// import { UserContext } from '../../context/UserContext';
+import React, { useState, useEffect } from 'react';
 
-
+// Import your local data
+import localData from '../data.json';
 
 const ProfilePage = () => {
-  // const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('profile');
-  const [profile, setProfile] = useState([]);
+  const [profile, setProfile] = useState(null);
   const [error, setError] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false); // Set to false since we're using local data
   const [profilePhoto, setProfilePhoto] = useState("https://randomuser.me/api/portraits/men/1.jpg");
-  // const { setUser } = useContext(UserContext);
-
+  
   // State for controlling modal visibility
   const [showEditProfileModal, setShowEditProfileModal] = useState(false);
   const [showChangePhotoModal, setShowChangePhotoModal] = useState(false);
@@ -21,37 +18,28 @@ const ProfilePage = () => {
   const [editFormData, setEditFormData] = useState({});
   const [selectedFile, setSelectedFile] = useState(null);
 
-  const fetchProfile = async () => {
-  const userId = localStorage.getItem('userId');
-  try {
-    const response = await fetch(`http://localhost:5000/api/users/${userId}`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const responseData = await response.json();
-
-      if (!Array.isArray(responseData.data)) {
-        throw new Error('API response data is not an array.');
-      }
-
-      // localStorage.setItem('name', responseData.data[0].name)
-      // setUser to the context
-      // setUser(responseData.data[0].name)
-      setProfile(responseData.data[0]);
-      setError(null);
-    } catch (error) {
-      console.error("Failed to fetch profile:", error);
-      setError("Failed to load profile. Please try again later.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
+  // Load profile from local data
   useEffect(() => {
-    fetchProfile();
+    const userId = localStorage.getItem('userId') || "pdHpZXgh03gM5Jslp4A7jstFyeb2"; // Default user for demo
+    
+    try {
+      // Find user in local data
+      const user = localData.users.find(u => u.userId === userId);
+      
+      if (user) {
+        setProfile(user);
+        // Set user name in localStorage for other components to use
+        localStorage.setItem('name', user.name);
+        localStorage.setItem('userName', user.name);
+        localStorage.setItem('userRole', user.role);
+      } else {
+        setError("User not found in local data");
+      }
+    } catch (err) {
+      console.error("Error loading profile:", err);
+      setError("Failed to load profile data");
+    }
   }, []);
-
 
   // Handler for opening the edit profile modal and populating form data
   const handleEditClick = () => {
@@ -72,54 +60,51 @@ const ProfilePage = () => {
     setEditFormData(prevData => ({ ...prevData, [name]: value }));
   };
 
-  // Handler for form submission (e.g., updating profile)
-  const handleUpdateProfile = async (e) => {
+  // Handler for form submission (updating profile locally)
+  const handleUpdateProfile = (e) => {
     e.preventDefault();
-    const userId = localStorage.getItem('userId');
+    
     try {
-      const response = await fetch(`http://localhost:5000/api/users/${userId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(editFormData),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to update profile: ${response.status}`);
-      }
-
-      const updatedProfile = await response.json();
-      // Update the local state with the new profile data
-      // setProfile(updatedProfile.data);
-      await fetchProfile();
-      alert('Profile updated successfully!');
-      // navigate('/dashboard');
+      // Update the profile in local state
+      const updatedProfile = { ...profile, ...editFormData };
+      setProfile(updatedProfile);
       
+      // Update localStorage with new values
+      localStorage.setItem('name', updatedProfile.name);
+      localStorage.setItem('userName', updatedProfile.name);
+      
+      alert('Profile updated successfully!');
       setShowEditProfileModal(false);
     } catch (err) {
       console.error("Error updating profile:", err);
+      alert('Failed to update profile');
     }
   };
-
-  if (isLoading) {
-    return <div className="p-8 text-gray-600">Loading profile...</div>;
-  }
-
-  if (error) {
-    return <div className="p-8 text-red-600">{error}</div>;
-  }
-
-  // const userData = profile[0];
 
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       const imageUrl = URL.createObjectURL(file);
       setProfilePhoto(imageUrl);
+      alert('Profile photo changed successfully!');
     }
   };
 
+  if (!profile) {
+    return (
+      <div className="flex h-screen bg-gray-100 items-center justify-center">
+        <div className="p-8 text-gray-600">Loading profile...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex h-screen bg-gray-100 items-center justify-center">
+        <div className="p-8 text-red-600">{error}</div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -163,20 +148,22 @@ const ProfilePage = () => {
                     </div>
                     <div>
                       <p className="text-sm text-gray-500">Email</p>
-                      <p className="text-gray-800">{profile.email}</p>
+                      <p className="text-gray-800">{profile.email || 'N/A'}</p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-500">Phone</p>
-                      <p className="text-gray-800">{profile.phoneNumber}</p>
+                      <p className="text-gray-800">{profile.phoneNumber || 'N/A'}</p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-500">Role</p>
-                      <p className="text-gray-800">{profile.role}</p>
+                      <p className="text-gray-800">{profile.role || 'N/A'}</p>
                     </div>
                   </div>
                   <div className="mb-6">
-                    <p className="text-sm text-gray-500">creationTime</p>
-                    <p className="text-gray-800">{profile.creationTime.slice(0, 10)}</p>
+                    <p className="text-sm text-gray-500">Creation Time</p>
+                    <p className="text-gray-800">
+                      {profile.creationTime ? profile.creationTime.slice(0, 10) : 'N/A'}
+                    </p>
                   </div>
                   <button
                     onClick={handleEditClick}
@@ -203,7 +190,7 @@ const ProfilePage = () => {
                   <input
                     type="text"
                     name="name"
-                    value={editFormData.name}
+                    value={editFormData.name || ''}
                     onChange={handleFormChange}
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm"
                   />
@@ -213,7 +200,7 @@ const ProfilePage = () => {
                   <input
                     type="email"
                     name="email"
-                    value={editFormData.email}
+                    value={editFormData.email || ''}
                     onChange={handleFormChange}
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm"
                   />
@@ -223,7 +210,7 @@ const ProfilePage = () => {
                   <input
                     type="text"
                     name="phoneNumber"
-                    value={editFormData.phoneNumber}
+                    value={editFormData.phoneNumber || ''}
                     onChange={handleFormChange}
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm"
                   />
@@ -257,7 +244,7 @@ const ProfilePage = () => {
             <div className="flex flex-col items-center">
               <div className="w-24 h-24 rounded-full bg-gray-200 mb-4 overflow-hidden">
                 <img 
-                  src="https://randomuser.me/api/portraits/men/1.jpg" 
+                  src={profilePhoto} 
                   alt="Current Profile" 
                   className="w-full h-full object-cover"
                 />
@@ -280,7 +267,7 @@ const ProfilePage = () => {
               <button
                 type="button"
                 className="px-4 py-2 text-sm font-medium text-white bg-[#F4A300] rounded-md hover:bg-[#e69500]"
-                onClick={() => {alert('Profile photo changed successfully!'); setShowChangePhotoModal(false);}}
+                onClick={() => setShowChangePhotoModal(false)}
               >
                 Upload
               </button>

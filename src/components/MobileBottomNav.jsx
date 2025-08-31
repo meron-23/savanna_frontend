@@ -26,7 +26,7 @@ const salesNavItems = [
   {
     name: 'Prospect',
     icon: (
-      <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
     ),
     subItems: prospectSubItems,
   }
@@ -47,14 +47,14 @@ const supervisorNavItems = [
   {
     name: 'Prospect',
     icon: (
-      <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /> 
     ),
     subItems: prospectSubItems,
   },
   {
     name: 'Assign Leads',
     path: 'AssignLeads',
-    icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />,
+    icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />,
   },
   {
     name: 'Office and Site Visits',
@@ -88,7 +88,7 @@ const managerNavItems = [
   {
     name: 'Assign Leads',
     path: 'AssignLeads',
-    icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />,
+    icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />,
   },
   {
     name: 'Prospect Report',
@@ -126,7 +126,7 @@ const MobileBottomNav = ({
 
   // Select the correct nav items based on the user's role
   let navItems = [];
-  if (role === 'Sales Agent') {
+  if (role === 'Agent') {
     navItems = salesNavItems;
   } else if (role === 'Supervisor') {
     navItems = supervisorNavItems;
@@ -161,7 +161,6 @@ const MobileBottomNav = ({
                 >
                   {item.icon}
                 </svg>
-                <span className="text-xs mt-1">{item.name}</span>
               </button>
 
               {/* Submenu for items with subItems (e.g., Prospect for Sales/Supervisor) */}

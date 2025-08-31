@@ -15,8 +15,17 @@ const DesktopSidebar = ({
 
   // Common links for the 'Prospect' dropdown
   const commonLinks = [
-    { index: 1, name: 'Add Prospect', path: 'Add' },
-    { index: 2, name: 'View Prospect', path: 'View' },
+    { index: 1, name: 'Add Prospect', path: 'Add', icon: (
+      <svg className="w-4 h-4 ms-1" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+      </svg>
+    )},
+    { index: 2, name: 'View Prospect', path: 'View', icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 ms-1">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.575 3.01 9.963 7.823a1.012 1.012 0 010 .638C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.575-3.01-9.963-7.823z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+    )},
   ];
 
   // Define the top-level navigation items for Sales role
@@ -148,7 +157,7 @@ const DesktopSidebar = ({
       name: 'Attendance',
       path: 'Attendance',
       icon: (
-         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
       )
     }
   ];
@@ -215,10 +224,10 @@ const DesktopSidebar = ({
                 name="Prospect"
                 icon={
                   <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001
-                    1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1
-                    0 011 1v2a1 1 0 001 1h2a1 1
-                    0 001-1v-6.586l.293.293a1 1
-                    0 001.414-1.414l-7-7z"
+                  1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1
+                  0 011 1v2a1 1 0 001 1h2a1 1
+                  0 001-1v-6.586l.293.293a1 1
+                  0 001.414-1.414l-7-7z"
                   />
                 }
                 isActive={activeItem === 'Prospect' || activeItem === 'Add' || activeItem === 'View'}
@@ -235,9 +244,7 @@ const DesktopSidebar = ({
                         className="flex items-center gap-2 text-gray-300 hover:text-[#F4A300] cursor-pointer px-2 py-2 rounded-lg"
                         onClick={() => handleSubItemClick(link.path)}
                       >
-                        <svg className="w-4 h-4 ms-1" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                        </svg>
+                        {link.icon}
                         {isSidebarOpen && <span>{link.name}</span>}
                       </li>
                     ))}
@@ -266,10 +273,10 @@ const DesktopSidebar = ({
                 name="Prospect"
                 icon={
                   <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001
-                    1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1
-                    0 011 1v2a1 1 0 001 1h2a1 1
-                    0 001-1v-6.586l.293.293a1 1
-                    0 001.414-1.414l-7-7z"
+                  1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1
+                  0 011 1v2a1 1 0 001 1h2a1 1
+                  0 001-1v-6.586l.293.293a1 1
+                  0 001.414-1.414l-7-7z"
                   />
                 }
                 isActive={activeItem === 'Prospect' || activeItem === 'Add' || activeItem === 'View'}
@@ -286,9 +293,7 @@ const DesktopSidebar = ({
                         className="flex items-center gap-2 text-gray-300 hover:text-[#F4A300] cursor-pointer px-2 py-2 rounded-lg"
                         onClick={() => handleSubItemClick(link.path)}
                       >
-                        <svg className="w-4 h-4 ms-1" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                        </svg>
+                        {link.icon}
                         {isSidebarOpen && <span>{link.name}</span>}
                       </li>
                     ))}

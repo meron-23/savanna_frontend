@@ -58,28 +58,28 @@ const ManagerDashboard = ({ user }) => {
           <h4 className="font-medium text-gray-600 mb-4">Role Manager</h4>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h5 className="text-gray-600 mb-2">Total Prospects</h5>
-              <p className="text-2xl font-bold">7,435</p>
+            <div className="bg-[#333333] p-4 rounded-lg">
+              <h5 className="text-[#F4A300] mb-2">Total Prospects</h5>
+              <p className="text-[#F4A300] text-2xl font-bold">7,435</p>
             </div>
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h5 className="text-gray-600 mb-2">Prospects This Week</h5>
-              <p className="text-2xl font-bold">198</p>
+            <div className="bg-[#333333] p-4 rounded-lg">
+              <h5 className="text-[#F4A300] mb-2">Prospects This Week</h5>
+              <p className="text-[#F4A300] text-2xl font-bold">198</p>
             </div>
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h5 className="text-gray-600 mb-2">Prospects Today</h5>
-              <p className="text-2xl font-bold">65</p>
+            <div className="bg-[#333333] p-4 rounded-lg">
+              <h5 className="text-[#F4A300] mb-2">Prospects Today</h5>
+              <p className="text-[#F4A300] text-2xl font-bold">65</p>
             </div>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h5 className="text-gray-600 mb-2">Total Sales Amount</h5>
-              <p className="text-2xl font-bold">160,027,140 ETB</p>
+            <div className="bg-[#333333] p-4 rounded-lg">
+              <h5 className="text-[#F4A300] mb-2">Total Sales Amount</h5>
+              <p className="text-[#F4A300] text-2xl font-bold">160,027,140 ETB</p>
             </div>
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h5 className="text-gray-600 mb-2">Total Sold Properties</h5>
-              <p className="text-2xl font-bold">7</p>
+            <div className="bg-[#333333] p-4 rounded-lg">
+              <h5 className="text-[#F4A300] mb-2">Total Sold Properties</h5>
+              <p className="text-[#F4A300] text-2xl font-bold">7</p>
             </div>
           </div>
         </div>

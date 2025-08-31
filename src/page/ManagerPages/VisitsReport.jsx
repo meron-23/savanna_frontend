@@ -346,35 +346,35 @@ const VisitsReport = () => {
             {/* Header/Summary Section */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               {/* Total Visits Card */}
-              <div className="bg-white p-6 rounded-xl shadow-md flex items-center">
-                <div className="bg-blue-100 p-3 rounded-full mr-4">
-                  <FiCalendar className="text-blue-600 text-xl" />
+              <div className="bg-[#333333] p-6 rounded-xl shadow-md flex items-center">
+                <div className="p-3 rounded-full mr-4">
+                  <FiCalendar className="text-[#F4A300] text-xl" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Total Visits</p>
-                  <p className="text-2xl font-bold text-gray-900">{totalVisitsCount}</p>
+                  <p className="text-sm font-medium text-[#F4A300]">Total Visits</p>
+                  <p className="text-2xl font-bold text-[#F4A300]">{totalVisitsCount}</p>
                 </div>
               </div>
               
               {/* Office Visits Card */}
-              <div className="bg-white p-6 rounded-xl shadow-md flex items-center">
-                <div className="bg-green-100 p-3 rounded-full mr-4">
-                  <FiHome className="text-green-600 text-xl" />
+              <div className="bg-[#333333] p-6 rounded-xl shadow-md flex items-center">
+                <div className="p-3 rounded-full mr-4">
+                  <FiHome className="text-[#F4A300] text-xl" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Office Visits</p>
-                  <p className="text-2xl font-bold text-gray-900">{officeVisitsCount}</p>
+                  <p className="text-sm font-medium text-[#F4A300]">Office Visits</p>
+                  <p className="text-2xl font-bold text-[#F4A300]">{officeVisitsCount}</p>
                 </div>
               </div>
               
               {/* Site Visits Card */}
-              <div className="bg-white p-6 rounded-xl shadow-md flex items-center">
-                <div className="bg-purple-100 p-3 rounded-full mr-4">
-                  <FiMapPin className="text-purple-600 text-xl" />
+              <div className="bg-[#333333] p-6 rounded-xl shadow-md flex items-center">
+                <div className="p-3 rounded-full mr-4">
+                  <FiMapPin className="text-[#F4A300] text-xl" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-500">Site Visits</p>
-                  <p className="text-2xl font-bold text-gray-900">{siteVisitsCount}</p>
+                  <p className="text-sm font-medium text-[#F4A300]">Site Visits</p>
+                  <p className="text-2xl font-bold text-[#F4A300]">{siteVisitsCount}</p>
                 </div>
               </div>
             </div>
@@ -391,13 +391,6 @@ const VisitsReport = () => {
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 space-y-2 sm:space-y-0">
                   <h3 className="text-lg font-semibold text-gray-700">Filters</h3>
                   <div className="flex space-x-2">
-                    <button
-                      onClick={handleExport}
-                      className="bg-[#F4A300] text-white px-4 py-2 rounded-lg hover:bg-[#e69500] flex items-center transition-colors"
-                    >
-                      <FiDownload className="mr-2" />
-                      Export
-                    </button>
                     <button 
                       onClick={clearFilters} 
                       className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 flex items-center transition-colors"
@@ -583,6 +576,13 @@ const VisitsReport = () => {
                   </button>
                 </div>
               )}
+               <button
+                      onClick={handleExport}
+                      className="bg-[#F4A300] mt-4 text-white px-4 py-2 rounded-lg hover:bg-[#e69500] flex items-center transition-colors"
+                    >
+                      <FiDownload className="mr-2" />
+                      Export
+                    </button>
             </div>
           </>
         )}

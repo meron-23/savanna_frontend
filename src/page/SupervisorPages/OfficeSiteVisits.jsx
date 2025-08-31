@@ -6,21 +6,17 @@ import localData from '../../data.json';
 // Main component for managing office and site visits
 const OfficeSiteVisits = () => {
   const [visits, setVisits] = useState([]);
-  const [isLoading, setIsLoading] = useState(false); // Set to false since we're using local data
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  
   const [messageBox, setMessageBox] = useState({ isVisible: false, text: '', type: 'success' });
-  
   const [searchTerm, setSearchTerm] = useState('');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
-
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   // State for the new visit form
   const [formState, setFormState] = useState({
-    clientId: '',
     visitDate: '',
     officeVisit: false,
     siteVisit: false,
@@ -31,7 +27,6 @@ const OfficeSiteVisits = () => {
   // State for the edit visit form
   const [editFormState, setEditFormState] = useState({
     visitID: '',
-    clientId: '',
     visitDate: '',
     officeVisit: false,
     siteVisit: false,
@@ -48,7 +43,6 @@ const OfficeSiteVisits = () => {
 
   const openRegisterModal = () => setIsRegisterModalOpen(true);
   const closeRegisterModal = () => setIsRegisterModalOpen(false);
-  
   const closeEditModal = () => setIsEditModalOpen(false);
 
   // Load data from local JSON
@@ -150,7 +144,7 @@ const OfficeSiteVisits = () => {
     if (type === 'checkbox') {
       setEditFormState(prevState => ({
         ...prevState,
-        [name]: checked
+        [name极]: checked
       }));
     } else {
       setEditFormState(prevState => ({
@@ -170,7 +164,7 @@ const OfficeSiteVisits = () => {
       // Create new visit object
       const newVisit = {
         VisitID: newVisitId,
-        ClientID: formState.clientId,
+        ClientID: "Auto-Generated", // Client ID is auto-generated now
         VisitDate: formState.visitDate,
         OfficeVisit: formState.officeVisit,
         SiteVisit: formState.siteVisit,
@@ -183,7 +177,6 @@ const OfficeSiteVisits = () => {
       
       // Reset form
       setFormState({
-        clientId: '',
         visitDate: '',
         officeVisit: false,
         siteVisit: false,
@@ -212,7 +205,6 @@ const OfficeSiteVisits = () => {
       const updatedVisits = visits.map(visit => 
         visit.VisitID === editFormState.visitID ? { 
           ...visit, 
-          ClientID: editFormState.clientId,
           VisitDate: editFormState.visitDate,
           OfficeVisit: editFormState.officeVisit,
           SiteVisit: editFormState.siteVisit,
@@ -233,7 +225,6 @@ const OfficeSiteVisits = () => {
   const handleEdit = (visit) => {
     setEditFormState({
       visitID: visit.VisitID,
-      clientId: visit.ClientID,
       visitDate: visit.VisitDate ? visit.VisitDate.split('T')[0] : '',
       officeVisit: visit.OfficeVisit,
       siteVisit: visit.SiteVisit,
@@ -259,7 +250,6 @@ const OfficeSiteVisits = () => {
   const filteredVisits = visits.filter(visit => {
     if (!visit) return false;
     const matchesSearch = 
-      (visit.ClientID && visit.ClientID.toString().toLowerCase().includes(searchTerm.toLowerCase())) ||
       (visit.VisitDetails && visit.VisitDetails.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (visit.remark && visit.remark.toLowerCase().includes(searchTerm.toLowerCase()));
 
@@ -286,7 +276,7 @@ const OfficeSiteVisits = () => {
 
   if (error) {
     return (
-      <div className="flex justify-center items-center h-screen bg-gray-100">
+      <div className="flex justify-center items-center极 h-screen bg-gray-100">
         <p className="text-red-600">{error}</p>
       </div>
     );
@@ -299,7 +289,7 @@ const OfficeSiteVisits = () => {
         {/* Custom Message Box */}
         {messageBox.isVisible && (
           <div className={`fixed bottom-4 right-4 p-4 rounded-md shadow-lg text-white z-50 
-                          ${message极Box.type === 'success' ? 'bg-green-500' : 'bg-red-500'}`}>
+                          ${messageBox.type === 'success' ? 'bg-green-500' : 'bg-red-500'}`}>
             {messageBox.text}
           </div>
         )}
@@ -307,24 +297,18 @@ const OfficeSiteVisits = () => {
         {/* Header and "Register Visit" button */}
         <div className="flex justify-between items-center bg-white rounded-lg shadow-md p-4 md:p-6">
           <h2 className="text-2xl font-bold text-gray-800">Office and Site Visits</h2>
-          <button
-            onClick={openRegisterModal}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#F4A300] hover:bg-[#333333] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#F4A300]"
-          >
-            Register New Visit
-          </button>
         </div>
         
         {/* Filter and Summary Section */}
         <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
           <div className="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-4 mb-4">
             <div className="relative flex-1">
-              <label htmlFor="search-phone" className="sr-only">Search by Client ID or Details</label>
+              <label htmlFor="search-details" className="sr-only">Search by Visit Details or Remarks</label>
               <input
-                id="search-phone"
+                id="search-details"
                 type="text"
-                placeholder="Search by Client ID or Details"
-                className="pl-4 pr-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm w-full"
+                placeholder="Search by Visit Details or Remarks"
+                className="pl-4 pr-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm w-full text-base"
                 value={searchTerm}
                 onChange={handleSearchChange}
               />
@@ -334,7 +318,7 @@ const OfficeSiteVisits = () => {
               <input
                 id="date-from"
                 type="date"
-                className="px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm w-full"
+                className="px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm w-full text-base"
                 value={dateFrom}
                 onChange={handleDateChange(setDateFrom)}
               />
@@ -344,7 +328,7 @@ const OfficeSiteVisits = () => {
               <input
                 id="date-to"
                 type="date"
-                className="px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm w-full"
+                className="px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm w-full text-base"
                 value={dateTo}
                 onChange={handleDateChange(setDateTo)}
               />
@@ -355,17 +339,17 @@ const OfficeSiteVisits = () => {
           <div className="bg-white rounded-lg p-4 mt-6 border border-gray-200">
             <h3 className="text-lg font-semibold text-gray-800 mb-2">Visit Summary</h3>
             <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
-              <div className="flex-1 bg-gray-50 rounded-lg p-4 shadow-sm border border-gray-200">
-                <p className="text-sm text-gray-500">Time Period</p>
-                <p className="text-2xl font-bold text-gray-900">All Visits</p>
+              <div className="flex-1 bg-[#333333] text-[#F4A300] rounded-lg p-4 shadow-sm border border-gray-200">
+                <p className="text-sm">Time Period</p>
+                <p className="text-2xl font-bold ">All Visits</p>
               </div>
-              <div className="flex-1 bg-gray-50 rounded-lg p-4 shadow-sm border border-gray-200">
-                <p className="text-sm text-gray-500">Office Visits</p>
-                <p className="text-2xl font-bold text-gray-900">{totalOfficeVisits}</p>
+              <div className="flex-1 bg-[#333333] text-[#F4A300] rounded-lg p-4 shadow-sm border border-gray-200">
+                <p className="text-sm ">Office Visits</p>
+                <p className="text-2xl font-bold">{totalOfficeVisits}</p>
               </div>
-              <div className="flex-1 bg-gray-50 rounded-lg p-4 shadow-sm border border-gray-200">
-                <p className="text-sm text-gray-500">Site Visits</p>
-                <p className="text-2xl font-bold text-gray-900">{totalSiteVisits}</p>
+              <div className="flex-1 bg-[#333333] text-[#F4A300] rounded-lg p-4 shadow-sm border border-gray-200">
+                <p className="text-sm ">Site Visits</p>
+                <p className="text-2xl font-bold">{totalSiteVisits}</p>
               </div>
             </div>
           </div>
@@ -378,21 +362,18 @@ const OfficeSiteVisits = () => {
               <thead className="bg-gray-50">
                 <tr>
                   <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
-                    Client ID
-                  </th>
-                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                     Visit Date
                   </th>
-                  <th scope="col" className="px-4 py-极3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                     Site Visit
                   </th>
-                  <th scope="col极" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                     Office Visit
                   </th>
-                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Visit Details
                   </th>
-                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Remark
                   </th>
                   <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
@@ -405,9 +386,6 @@ const OfficeSiteVisits = () => {
                   filteredVisits.map((visit) => (
                     visit && (
                       <tr key={visit.VisitID} className="hover:bg-gray-50">
-                        <td className="px-4 py-4 text-sm text-gray-900 align-middle whitespace-nowrap">
-                          {visit.ClientID}
-                        </td>
                         <td className="px-4 py-4 text-sm text-gray-500 align-middle whitespace-nowrap">
                           {visit.VisitDate ? new Date(visit.VisitDate).toLocaleDateString() : 'N/A'}
                         </td>
@@ -436,15 +414,20 @@ const OfficeSiteVisits = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="7" className="px-4 py-4 text-center text-gray-500">No matching visits found.</td>
+                    <td colSpan="6" className="px-4 py-4 text-center text-gray-500">No matching visits found.</td>
                   </tr>
                 )}
               </tbody>
             </table>
+            <button
+                onClick={openRegisterModal}
+                className="inline-flex items-center px-4 py-2 mt-4 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#F4A300] hover:bg-[#333333] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#F4A300]"
+              >
+                Register New Visit
+          </button>
           </div>
         </div>
       </div>
-
       {/* Modal for Register New Visit Form */}
       {isRegisterModalOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-gray-600 bg-opacity-50 flex justify-center pt-20">
@@ -463,19 +446,6 @@ const OfficeSiteVisits = () => {
             <form onSubmit={handleFormSubmit}>
               <div className="bg-gray-50 rounded-lg p-6 space-y-6">
                 <div className="space-y-2">
-                  <label htmlFor="clientId" className="block text-sm font-medium text-gray-700">Client ID</label>
-                  <input
-                    id="clientId"
-                    type="text"
-                    name="clientId"
-                    placeholder="Enter Client ID"
-                    value={formState.clientId || ''}
-                    onChange={handleFormChange}
-                    required
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#F4A300] focus:ring-[#F4A300] sm:text-sm"
-                  />
-                </div>
-                <div className="space-y-2">
                   <label htmlFor="visitDate" className="block text-sm font-medium text-gray-700">Visit Date</label>
                   <input
                     id="visitDate"
@@ -484,7 +454,7 @@ const OfficeSiteVisits = () => {
                     value={formState.visitDate}
                     onChange={handleFormChange}
                     required
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#F4A300] focus:ring-[#F4A300] sm:text-sm"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#F4A300] focus:ring-[#F4A300] sm:text-sm p-3 text-base"
                   />
                 </div>
                 <div className="space-y-2">
@@ -495,8 +465,8 @@ const OfficeSiteVisits = () => {
                         type="checkbox"
                         name="siteVisit"
                         checked={formState.siteVisit}
-                        onChange={handleFormChange}
-                        className="form-checkbox text-[#F4A300] h-4 w-4 rounded"
+                        onChange极={handleFormChange}
+                        className="form-checkbox text-[#F4A300] h-5 w-5 rounded"
                       />
                       <span className="ml-2 text-sm text-gray-700">Site Visit</span>
                     </label>
@@ -506,7 +476,7 @@ const OfficeSiteVisits = () => {
                         name="officeVisit"
                         checked={formState.officeVisit}
                         onChange={handleFormChange}
-                        className="form-checkbox text-[#F4A300] h-4 w-4 rounded"
+                        className="form-checkbox text-[#F4A300] h-5 w-5 rounded"
                       />
                       <span className="ml-2 text-sm text-gray-700">Office Visit</span>
                     </label>
@@ -517,13 +487,12 @@ const OfficeSiteVisits = () => {
                   <textarea
                     id="visitDetails"
                     name="visitDetails"
-                    rows="3"
+                    rows="4"
                     value={formState.visitDetails}
                     onChange={handleFormChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#F4A300] focus:ring-[#F4A300] sm:text-sm"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#F4A300] focus:ring-[#F4A300] sm:text-sm p-3 text-base"
                   ></textarea>
                 </div>
-                {/* Remark input for new visit */}
                 <div className="space-y-2">
                   <label htmlFor="remark" className="block text-sm font-medium text-gray-700">Remark</label>
                   <textarea
@@ -532,13 +501,13 @@ const OfficeSiteVisits = () => {
                     rows="3"
                     value={formState.remark}
                     onChange={handleFormChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#F4A300] focus:ring-[#F4A300] sm:text-sm"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#F4A300] focus:ring-[#F4A300] sm:text-sm p-3 text-base"
                   ></textarea>
                 </div>
                 <div className="pt-4">
                   <button
                     type="submit"
-                    className="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#F4A300] hover:bg-[#333333] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#F4A300]"
+                    className="w-full inline-flex justify-center py-3 px-4 border border-transparent shadow-sm text-base font-medium rounded-md text-white bg-[#F4A300] hover:bg-[#333333] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#F4A300]"
                   >
                     Register Visit
                   </button>
@@ -560,32 +529,14 @@ const OfficeSiteVisits = () => {
                 className="text-gray-400 hover:text-gray-600"
               >
                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 极12" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
             <form onSubmit={handleEditFormSubmit}>
               <div className="bg-gray-50 rounded-lg p-6 space-y-6">
-                {/* Check if the visit is editable within the 24-hour window */}
                 <div className="space-y-2">
-                  <label htmlFor="edit-clientID" className="block text-sm font-medium text-gray-700">Client ID</label>
-                  <input
-                    id="edit-clientID"
-                    type="text"
-                    name="clientId"
-                    value={editFormState.clientId}
-                    onChange={handleEditFormChange}
-                    required
-                    disabled={!isEditable(editFormState.visitDate)}
-                    className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm
-                                ${isEditable(editFormState.visitDate) ? 'focus:border-[#F4A300] focus:ring-[#F4A300]' : 'bg-gray-200 cursor-not-allowed'}`}
-                  />
-                  {!isEditable(editFormState.visitDate) && (
-                    <p className="text-xs text-red-500">Editable only within 24 hours of creation.</p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <label htmlFor="edit-visitDate极" className="block text-sm font-medium text-gray-700">Visit Date</label>
+                  <label htmlFor="edit-visitDate" className="block text-sm font-medium text-gray-700">Visit Date</label>
                   <input
                     id="edit-visitDate"
                     type="date"
@@ -594,12 +545,15 @@ const OfficeSiteVisits = () => {
                     onChange={handleEditFormChange}
                     required
                     disabled={!isEditable(editFormState.visitDate)}
-                    className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm
+                    className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm p-3 text-base
                                 ${isEditable(editFormState.visitDate) ? 'focus:border-[#F4A300] focus:ring-[#F4A300]' : 'bg-gray-200 cursor-not-allowed'}`}
                   />
+                  {!isEditable(editFormState.visitDate) && (
+                    <p className="text-xs text-red-500">Editable only within 24 hours of creation.</p>
+                  )}
                 </div>
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-极700">Visit Type</label>
+                  <label className="block text-sm font-medium text-gray-700">Visit Type</label>
                   <div className="flex items-center space-x-4">
                     <label className="flex items-center">
                       <input
@@ -608,7 +562,7 @@ const OfficeSiteVisits = () => {
                         checked={editFormState.siteVisit}
                         onChange={handleEditFormChange}
                         disabled={!isEditable(editFormState.visitDate)}
-                        className={`form-checkbox h-4 w-4 rounded text-[#F4A300]
+                        className={`form-checkbox h-5 w-5 rounded text-[#F4A300]
                                     ${!isEditable(editFormState.visitDate) && 'cursor-not-allowed'}`}
                       />
                       <span className="ml-2 text-sm text-gray-700">Site Visit</span>
@@ -620,7 +574,7 @@ const OfficeSiteVisits = () => {
                         checked={editFormState.officeVisit}
                         onChange={handleEditFormChange}
                         disabled={!isEditable(editFormState.visitDate)}
-                        className={`form-checkbox h-4 w-4 rounded text-[#F4A300]
+                        className={`form-checkbox h-5 w-5 rounded text-[#F4A300]
                                     ${!isEditable(editFormState.visitDate) && 'cursor-not-allowed'}`}
                       />
                       <span className="ml-2 text-sm text-gray-700">Office Visit</span>
@@ -632,15 +586,14 @@ const OfficeSiteVisits = () => {
                   <textarea
                     id="edit-visitDetails"
                     name="visitDetails"
-                    rows="3"
+                    rows="4"
                     value={editFormState.visitDetails}
                     onChange={handleEditFormChange}
                     disabled={!isEditable(editFormState.visitDate)}
-                    className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm
+                    className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm p-3 text-base
                                 ${isEditable(editFormState.visitDate) ? 'focus:border-[#F4A300] focus:ring-[#F4A300]' : 'bg-gray-200 cursor-not-allowed'}`}
                   ></textarea>
                 </div>
-                {/* Remark input - always editable */}
                 <div className="space-y-2">
                   <label htmlFor="edit-remark" className="block text-sm font-medium text-gray-700">Remark</label>
                   <textarea
@@ -649,20 +602,20 @@ const OfficeSiteVisits = () => {
                     rows="3"
                     value={editFormState.remark}
                     onChange={handleEditFormChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#F4A300] focus:ring-[#F4A300] sm:text-sm"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#F4A300] focus:ring-[#F4A300] sm:text-sm p-3 text-base"
                   ></textarea>
                 </div>
                 <div className="pt-4 flex space-x-3">
                   <button
                     type="submit"
-                    className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#F4A300] hover:bg-[#e69500] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#F4A300]"
+                    className="inline-flex justify-center py-3 px-6 border border-transparent shadow-sm text-base font-medium rounded-md text-white bg-[#F4A300] hover:bg-[#e69500] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#F4A300]"
                   >
                     Update Visit
                   </button>
                   <button
                     type="button"
                     onClick={handleCancelEdit}
-                    className="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#F4A300]"
+                    className="inline-flex justify-center py-3 px-6 border border-gray-300 shadow-sm text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#F4A300]"
                   >
                     Cancel
                   </button>

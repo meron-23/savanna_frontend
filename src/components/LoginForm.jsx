@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FcGoogle } from 'react-icons/fc';
+import { FiEye, FiEyeOff } from 'react-icons/fi';
 import { UserContext } from '../context/UserContext';
 import { Link } from 'react-router-dom';
 
@@ -12,6 +13,7 @@ const AuthForm = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { setUser, setRole, setUserData } = useContext(UserContext);
 
   const [formData, setFormData] = useState({
@@ -25,6 +27,10 @@ const AuthForm = () => {
       ...prev,
       [name]: value
     }));
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   const handleSubmit = (e) => {
@@ -50,12 +56,11 @@ const AuthForm = () => {
           // Update context
           setUser(user.name);
           setRole(user.role);
-          // setUserData(user);
 
           // Navigate based on role
           if (user.role === "Admin") {
             navigate('/admin');
-          } else if (["Agent", "Sales Agent", "Manager", "Supervisor"].includes(user.role)) {
+          } else if (["Agent", "SalesAgent", "Manager", "Supervisor"].includes(user.role)) {
             navigate('/dashboard');
           } else {
             navigate('/');
@@ -108,121 +113,135 @@ const AuthForm = () => {
   }, []);
 
   return (
-    <div className="w-full max-w-sm">
-      <h2 className="block sm:hidden text-2xl font-bold text-center mb-2 text-[#F4A300]">
-        Savanna
-      </h2>
+    <div className="h-screen flex items-center justify-center bg-gray-50 py-8 px-4 sm:px-6 lg:px-8 overflow-hidden">
+      <div className="w-full max-w-sm mx-auto">
+        <div className="text-center mb-6">
+          <h1 className="text-3xl font-bold text-[#F4A300] mb-2">Savanna</h1>
+          <h2 className="text-2xl font-bold text-gray-800">Welcome Back</h2>
+          <p className="text-gray-600 mt-2 text-sm">
+            Enter your email and password to access your account.
+          </p>
+        </div>
+        
+        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-3 mb-4 rounded text-sm">
+          <p className="font-bold">Demo Mode</p>
+          <p>Pre-filled with demo credentials</p>
+        </div>
 
-      <h2 className="text-3xl font-bold text-center mb-2 text-charcoal">
-        Welcome Back
-      </h2>
-      <p className="text-center text-gray-600 mb-8">
-        Enter your email and password to access your account.
-      </p>
-      
-      <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4 rounded" role="alert">
-        <p className="font-bold">Demo Mode</p>
-        <p>Using local data storage - no server required</p>
-        <p className="text-sm mt-1">Pre-filled with demo credentials</p>
-      </div>
-
-      <form className="space-y-4" onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="email" className="block text-gray-700 text-sm font-bold mb-2">
-            Email
-          </label>
-          <div className="relative">
+        <form className="space-y-3" onSubmit={handleSubmit}>
+          <div>
+            <label htmlFor="email" className="block text-gray-700 text-sm font-medium mb-1">
+              Email
+            </label>
             <input
               name="email"
               type="email"
               id="email"
               value={formData.email}
               onChange={handleChange}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-[#F4A300]"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#F4A300] focus:border-[#F4A300] text-sm"
               required
             />
           </div>
+
+          <div>
+            <label htmlFor="password" className="block text-gray-700 text-sm font-medium mb-1">
+              Password
+            </label>
+            <div className="relative">
+              <input
+                name="password"
+                type={showPassword ? "text" : "password"}
+                id="password"
+                value={formData.password}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#F4A300] focus:border-[#F4A300] text-sm pr-10"
+                required
+              />
+              <button
+                type="button"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                onClick={togglePasswordVisibility}
+              >
+                {showPassword ? (
+                  <FiEyeOff className="h-4 w-4 text-gray-400" />
+                ) : (
+                  <FiEye className="h-4 w-4 text-gray-400" />
+                )}
+              </button>
+            </div>
+          </div>
+          
+          <div className="flex items-center justify-between text-xs">
+            <label className="flex items-center">
+              <input type="checkbox" className="mr-2 rounded" />
+              <span className="text-gray-700">Remember Me</span>
+            </label>
+            <Link to="/forgot-password" className="text-[#F4A300] hover:underline">
+              Forgot Password?
+            </Link>
+          </div>
+          
+          {successMessage && (
+            <div className="p-2 bg-green-100 text-green-700 rounded-md text-sm">
+              {successMessage}
+            </div>
+          )}
+          {error && (
+            <div className="p-2 bg-red-100 text-red-700 rounded-md text-sm">
+              {error}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={isLoading}
+            className={`w-full bg-[#F4A300] text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#F4A300] transition-colors text-sm ${
+              isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#e69500]'
+            }`}
+          >
+            {isLoading ? 'Logging In...' : 'Log In'}
+          </button>
+        </form>
+
+        <div className="flex items-center my-4">
+          <div className="flex-grow border-t border-gray-300"></div>
+          <span className="mx-2 text-gray-500 text-xs">Or continue with</span>
+          <div className="flex-grow border-t border-gray-300"></div>
         </div>
 
-        <div>
-          <label htmlFor="password" className="block text-gray-700 text-sm font-bold mb-2">
-            Password
-          </label>
-          <div className="relative">
-            <input
-              name="password"
-              type="password"
-              id="password"
-              value={formData.password}
-              onChange={handleChange}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-[#F4A300]"
-              required
-            />
+        <div className="flex justify-center mb-4">
+          <button 
+            onClick={mockGoogleLogin}
+            disabled={isLoading}
+            className="flex items-center justify-center w-full border border-gray-300 rounded-md py-2 px-4 bg-white text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50 text-sm"
+          >
+            <FcGoogle className="mr-2" /> 
+            <span>Google</span>
+          </button>
+        </div>
+
+        <div className="p-2 bg-blue-50 rounded-md mb-3">
+          <p className="text-center text-blue-700 text-xs font-medium">
+            Demo Accounts
+          </p>
+          <div className="text-xs text-blue-600 mt-1 text-center">
+            <div>Manager: demo@gmail.com / 123456 </div>
+            <div>Sales Agent: chala@gmail.com / 123456</div>
+            <div>Supervisor: mohammed@example.com / 123456</div>
           </div>
         </div>
-        
-        <div className="flex items-center justify-between text-sm">
-          <label className="flex items-center">
-            <input type="checkbox" className="mr-2" />
-            <span className="text-gray-700">Remember Me</span>
-          </label>
-          <Link to="/forgot-password" className="text-[#F4A300] hover:underline">
-            Forgot Your Password?
-          </Link>
-        </div>
-        
-        {successMessage && (
-          <div className="p-3 bg-green-100 text-green-700 rounded-md">
-            {successMessage}
-          </div>
-        )}
-        {error && (
-          <div className="p-3 bg-red-100 text-red-700 rounded-md">
-            {error}
-          </div>
-        )}
 
-        <button
-          type="submit"
-          disabled={isLoading}
-          className={`w-full bg-[#F4A300] text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-200 ${
-            isLoading ? 'bg-gray-400 cursor-not-allowed' : 'hover:bg-opacity-90'
-          }`}
-        >
-          {isLoading ? 'Logging In...' : 'Log In'}
-        </button>
-      </form>
-
-      <div className="flex items-center my-6">
-        <div className="flex-grow border-t border-gray-300"></div>
-        <span className="mx-4 text-gray-500">Or Login With</span>
-        <div className="flex-grow border-t border-gray-300"></div>
-      </div>
-
-      <div className="flex justify-center">
-        <button 
-          onClick={mockGoogleLogin}
-          disabled={isLoading}
-          className="flex-1 max-w-xs flex items-center justify-center border border-gray-300 rounded py-2 text-gray-700 hover:bg-gray-50 transition duration-200 disabled:opacity-50"
-        >
-          <FcGoogle className="mr-2 text-lg" /> Google
-        </button>
-      </div>
-
-      <div className="mt-6 p-3 bg-blue-50 rounded-md">
-        <p className="text-center text-blue-700 text-sm font-medium">
-          Demo Accounts:
+        <p className="text-center text-gray-500 text-xs">
+          Don't have an account? Contact your administrator.
         </p>
-        <div className="text-xs text-blue-600 mt-1 text-center">
-          <div>demo@gmail.com / 123456 (Manager)</div>
-          <div>deguyibeltal918@gmail.com / test123 (Sales Agent)</div>
-          <div>mohammed@example.com / 123456 (Supervisor)</div>
-        </div>
       </div>
 
-      <p className="text-center text-gray-600 text-sm mt-6">
-        Don't have an account? Contact your administrator to be added.
-      </p>
+      <style jsx>{`
+        body {
+          overflow: hidden;
+        }
+      `}</style>
     </div>
   );
 };

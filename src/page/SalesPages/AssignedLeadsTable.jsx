@@ -127,9 +127,6 @@ const AssignedLeadsTable = () => {
         <p className="text-gray-600 text-lg text-center">
           No leads are currently assigned to you. Check back later!
         </p>
-        {currentUser && (
-          <p className="text-sm text-gray-500 mt-2">User ID: {currentUser.userId}</p>
-        )}
       </div>
     );
   }

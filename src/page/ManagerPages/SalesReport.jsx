@@ -193,44 +193,37 @@ const SalesReport = () => {
             <h1 className="text-2xl font-bold text-gray-800">Sales Dashboard</h1>
             <p className="text-gray-600 mt-1">Track and analyze your sales performance</p>
           </div>
-          <button
-            onClick={handleExport}
-            className="mt-4 sm:mt-0 flex items-center px-4 py-2 bg-[#F4A300] text-white rounded-lg hover:bg-[#e69500] transition-colors"
-          >
-            <FiDownload className="mr-2" />
-            Export CSV
-          </button>
         </div>
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white p-6 rounded-xl shadow-md flex items-center">
-            <div className="bg-blue-100 p-3 rounded-full mr-4">
-              <FiTrendingUp className="text-blue-600 text-xl" />
+          <div className="bg-[#333333] p-6 rounded-xl shadow-md flex items-center">
+            <div className="p-3 rounded-full mr-4">
+              <FiTrendingUp className="text-[#F4A300] text-xl" />
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-500">Total Sales</p>
-              <p className="text-2xl font-bold text-gray-800">{totalSales}</p>
+              <p className="text-sm font-medium text-[#F4A300]">Total Sales</p>
+              <p className="text-2xl font-bold text-[#F4A300]">{totalSales}</p>
             </div>
           </div>
           
-          <div className="bg-white p-6 rounded-xl shadow-md flex items-center">
-            <div className="bg-green-100 p-3 rounded-full mr-4">
-              <FiDollarSign className="text-green-600 text-xl" />
+          <div className="bg-[#333333] p-6 rounded-xl shadow-md flex items-center">
+            <div className="p-3 rounded-full mr-4">
+              <FiDollarSign className="text-[#F4A300] text-xl" />
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-500">Total Amount</p>
-              <p className="text-2xl font-bold text-gray-800">{formatCurrency(totalAmount)}</p>
+              <p className="text-sm font-medium text-[#F4A300]">Total Amount</p>
+              <p className="text-2xl font-bold text-[#F4A300]">{formatCurrency(totalAmount)}</p>
             </div>
           </div>
           
-          <div className="bg-white p-6 rounded-xl shadow-md flex items-center">
-            <div className="bg-purple-100 p-3 rounded-full mr-4">
-              <FiUser className="text-purple-600 text-xl" />
+          <div className="bg-[#333333] p-6 rounded-xl shadow-md flex items-center">
+            <div className="p-3 rounded-full mr-4">
+              <FiUser className="text-[#F4A300] text-xl" />
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-500">Average Sale</p>
-              <p className="text-2xl font-bold text-gray-800">{formatCurrency(averageSale)}</p>
+              <p className="text-sm font-medium text-[#F4A300]">Average Sale</p>
+              <p className="text-2xl font-bold text-[#F4A300]">{formatCurrency(averageSale)}</p>
             </div>
           </div>
         </div>
@@ -384,7 +377,7 @@ const SalesReport = () => {
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex justify-between items-center mt-6">
+            <div className="flex justify-between items-center mt-6 mb-4">
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
@@ -422,6 +415,13 @@ const SalesReport = () => {
               </button>
             </div>
           )}
+          <button
+            onClick={handleExport}
+            className="sm:mt-0 flex items-center px-4 py-2 bg-[#F4A300] text-white rounded-lg hover:bg-[#e69500] transition-colors"
+          >
+            <FiDownload className="mr-2" />
+            Export CSV
+          </button>
         </div>
       </div>
     </div>

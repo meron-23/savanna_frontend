@@ -234,16 +234,16 @@ const SupervisorDashboard = ({ user }) => { // Changed from supervisorId to user
 
 // Reusable StatCard components
 const StatCard = ({ title, value }) => (
-  <div className="bg-gray-50 p-4 rounded-lg">
-    <h5 className="text-gray-600 mb-2">{title}</h5>
-    <p className="text-2xl font-bold">{value}</p>
+  <div className="bg-[#333333] p-4 rounded-lg">
+    <h5 className="text-[#F4A300] mb-2">{title}</h5>
+    <p className="text-2xl font-bold text-[#F4A300]">{value}</p>
   </div>
 );
 
 const StatCardSmall = ({ title, value }) => (
-  <div>
-    <h5 className="text-gray-600">{title}</h5>
-    <p className="text-xl font-bold">{value}</p>
+  <div className="bg-[#333333] p-4 rounded-lg">
+    <h5 className="text-[#F4A300]">{title}</h5>
+    <p className="text-xl font-bold text-[#F4A300]">{value}</p>
   </div>
 );
 

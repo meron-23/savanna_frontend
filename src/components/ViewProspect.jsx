@@ -122,12 +122,13 @@ const EditProspectModal = ({ prospect, onSave, onCancel }) => {
 // Main component
 const ViewProspect = () => {
   const [prospects, setProspects] = useState([]);
-  const [isLoading, setIsLoading] = useState(false); // Set to false since we're using local data
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [showEditModal, setShowEditModal] = useState(false);
   const [currentProspectToEdit, setCurrentProspectToEdit] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
+  const [selectedProspects, setSelectedProspects] = useState([]);
 
   // Load data from local JSON
   useEffect(() => {
@@ -148,6 +149,7 @@ const ViewProspect = () => {
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
+    setSelectedProspects([]); // Clear selection on search
   };
 
   const filteredProspects = prospects.filter(prospect =>
@@ -164,15 +166,14 @@ const ViewProspect = () => {
       (prospect.dateNow && new Date(prospect.dateNow).toLocaleDateString().toLowerCase().includes(searchTerm.toLowerCase()))
     )
   );
-  
+
   const handleEditClick = (prospect) => {
     setCurrentProspectToEdit(prospect);
     setShowEditModal(true);
   };
 
   const handleSendMessage = (phoneNumber) => {
-    // Implement your messaging logic here
-    // For now, let's just log the phone number
+    // For now, let's just log the phone number and alert
     console.log(`Sending message to: ${phoneNumber}`);
     alert(`Simulating sending a message to: ${phoneNumber}`);
   };
@@ -185,7 +186,6 @@ const ViewProspect = () => {
     }
     
     try {
-      // Update the local state instead of making an API call
       const updatedProspects = prospects.map(prospect => 
         prospect.id === updatedData.id ? { ...prospect, ...updatedData } : prospect
       );
@@ -194,7 +194,6 @@ const ViewProspect = () => {
       setShowEditModal(false);
       setCurrentProspectToEdit(null);
       
-      // Show success message
       setSuccessMessage('Prospect updated successfully! ✅');
       setTimeout(() => setSuccessMessage(null), 5000);
       
@@ -208,6 +207,39 @@ const ViewProspect = () => {
     setShowEditModal(false);
     setCurrentProspectToEdit(null);
   };
+  
+  // New handlers for bulk selection and messaging
+  const handleCheckboxChange = (id) => {
+    setSelectedProspects(prevSelected =>
+      prevSelected.includes(id)
+        ? prevSelected.filter(prospectId => prospectId !== id)
+        : [...prevSelected, id]
+    );
+  };
+
+  const handleSelectAllChange = (event) => {
+    if (event.target.checked) {
+      const allFilteredIds = filteredProspects.map(prospect => prospect.id);
+      setSelectedProspects(allFilteredIds);
+    } else {
+      setSelectedProspects([]);
+    }
+  };
+
+  const handleSendMessageToSelected = () => {
+    const numbersToMessage = prospects
+      .filter(p => selectedProspects.includes(p.id))
+      .map(p => p.phoneNumber);
+      
+    if (numbersToMessage.length > 0) {
+      alert(`Simulating sending a message to ${numbersToMessage.length} prospects: \n${numbersToMessage.join(', ')}`);
+      setSuccessMessage(`Messages sent to ${numbersToMessage.length} prospects! 📧`);
+      setTimeout(() => setSuccessMessage(null), 5000);
+    }
+  };
+
+  const allFilteredAreSelected = filteredProspects.length > 0 && selectedProspects.length === filteredProspects.length;
+  const someAreSelected = selectedProspects.length > 0 && selectedProspects.length < filteredProspects.length;
 
   if (isLoading) {
     return (
@@ -242,17 +274,27 @@ const ViewProspect = () => {
           </h2>
           <p className="text-gray-600 text-sm md:text-base">{prospects.length} Total Prospects</p>
         </div>
-        <div className="relative w-full sm:w-auto">
-          <input
-            type="text"
-            placeholder="Search all fields..."
-            className="pl-10 pr-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] w-full sm:text-sm"
-            value={searchTerm}
-            onChange={handleSearchChange}
-          />
-          <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/200极/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+          <div className="relative w-full sm:w-auto">
+            <input
+              type="text"
+              placeholder="Search all fields..."
+              className="pl-10 pr-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] w-full sm:text-sm"
+              value={searchTerm}
+              onChange={handleSearchChange}
+            />
+            <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <button
+            onClick={handleSendMessageToSelected}
+            disabled={selectedProspects.length === 0}
+            className={`px-4 py-2 rounded-md font-medium text-sm transition-colors duration-200
+              ${selectedProspects.length > 0 ? 'bg-blue-500 hover:bg-blue-600 text-white' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
+          >
+            Message Selected ({selectedProspects.length})
+          </button>
         </div>
       </div>
 
@@ -261,10 +303,23 @@ const ViewProspect = () => {
         <p className="text-gray-600 text-center py-8">No matching prospects found. Try a different search term.</p>
       ) : (
         /* Table Container with Horizontal Scroll */
-        <div className="overflow-x-auto rounded-lg border border-gray极-200 shadow-sm">
+        <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
+                <th scope="col" className="px-3 py-3 w-10 text-left">
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4 text-[#F4A300] border-gray-300 rounded focus:ring-[#F4A300] cursor-pointer"
+                    checked={allFilteredAreSelected}
+                    ref={input => {
+                      if (input) {
+                        input.indeterminate = someAreSelected;
+                      }
+                    }}
+                    onChange={handleSelectAllChange}
+                  />
+                </th>
                 <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap sm:px-4">
                   Name
                 </th>
@@ -283,7 +338,7 @@ const ViewProspect = () => {
                 <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap sm:px-4">
                   Period Time
                 </th>
-                <th scope="col" className="px-3 py-3 text-left极 text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap sm:px-4">
+                <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap sm:px-4">
                   Date
                 </th>
                 <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap sm:px-4">
@@ -304,6 +359,14 @@ const ViewProspect = () => {
               {filteredProspects.map((prospect) => (
                 prospect && (
                   <tr key={prospect.id} className="hover:bg-gray-50">
+                    <td className="px-3 py-3 align-top">
+                      <input
+                        type="checkbox"
+                        className="h-4 w-4 text-[#F4A300] border-gray-300 rounded focus:ring-[#F4A300] cursor-pointer"
+                        checked={selectedProspects.includes(prospect.id)}
+                        onChange={() => handleCheckboxChange(prospect.id)}
+                      />
+                    </td>
                     <td className="px-3 py-3 text-sm text-gray-900 align-top sm:px-4">
                       <div className="line-clamp-2">{prospect.name}</div>
                     </td>
@@ -313,7 +376,7 @@ const ViewProspect = () => {
                     <td className="px-3 py-3 text-sm text-gray-500 align-top sm:px-4">
                       <div className="line-clamp-2">{prospect.interest}</div>
                     </td>
-                    <td className="px-3 py-3 text-sm text-gray-500 align-top whitespace-nowrap sm:px极-4">
+                    <td className="px-3 py-3 text-sm text-gray-500 align-top whitespace-nowrap sm:px-4">
                       {prospect.method}
                     </td>
                     <td className="px-3 py-3 text-sm text-gray-500 align-top sm:px-4">
