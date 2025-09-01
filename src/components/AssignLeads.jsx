@@ -185,12 +185,19 @@ const PhoneIcon = (props) => (
   </svg>
 );
 
-
 const ChevronDownIcon = (props) => (
   <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <polyline points="6 9 12 15 18 9"></polyline>
   </svg>
 );
+
+const PlusIcon = (props) => (
+  <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="12" y1="5" x2="12" y2="19"></line>
+    <line x1="5" y1="12" x2="19" y2="12"></line>
+  </svg>
+);
+
 
 const AssignLeads = () => {
   const [leads, setLeads] = useState([]);
@@ -204,6 +211,10 @@ const AssignLeads = () => {
   const [statusFilter, setStatusFilter] = useState('new');
   const [sourceFilter, setSourceFilter] = useState('');
   const [statusMessage, setStatusMessage] = useState(null);
+  // New state for the add lead modal
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [newLead, setNewLead] = useState({ name: '', phone: '', interest: '', source: 'social_media' });
+
 
   const showStatusMessage = (message, type = 'success') => {
     setStatusMessage({ message, type });
@@ -327,6 +338,29 @@ const AssignLeads = () => {
     loadData();
     showStatusMessage('Data refreshed.');
   };
+  
+  // New function to handle adding a new lead
+  const handleAddNewLead = (e) => {
+    e.preventDefault();
+    if (!newLead.name || !newLead.phone) {
+      showStatusMessage('Name and Phone are required.', 'error');
+      return;
+    }
+
+    const newLeadId = Math.max(...leads.map(l => l.id)) + 1;
+    const leadToAdd = {
+      id: newLeadId,
+      ...newLead,
+      status: 'new',
+      is_called: false,
+      date_added: new Date().toISOString(),
+    };
+
+    setLeads(prevLeads => [...prevLeads, leadToAdd]);
+    setIsAddModalOpen(false);
+    setNewLead({ name: '', phone: '', interest: '', source: 'social_media' });
+    showStatusMessage(`New lead "${newLead.name}" added successfully!`);
+  };
 
   const allLeadsSelected = filteredLeads.length > 0 && selectedLeads.length === filteredLeads.length;
 
@@ -339,7 +373,7 @@ const AssignLeads = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4 md:p-6 font-sans">
+    <div className="min-h-screen bg-gray-100 p-4 md:p-6 font-sans relative">
       <style>
         {`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -367,6 +401,26 @@ const AssignLeads = () => {
           90% { opacity: 1; transform: translateY(0); }
           100% { opacity: 0; transform: translateY(-20px); }
         }
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 40;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 500px;
+        }
         `}
       </style>
 
@@ -382,7 +436,7 @@ const AssignLeads = () => {
         <div className="lg:col-span-2 bg-white rounded-lg shadow-md p-4">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
             <h2 className="text-lg font-semibold text-gray-800">Available Leads</h2>
-            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto items-center">
               <div className="relative w-full sm:w-64">
                 <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <input
@@ -421,6 +475,13 @@ const AssignLeads = () => {
                 </select>
                 <ChevronDownIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-400" />
               </div>
+              <button
+                onClick={() => setIsAddModalOpen(true)}
+                className="flex items-center justify-center p-2 rounded-md bg-[#F4A300] text-white hover:bg-[#333333] transition-colors duration-200"
+              >
+                <PlusIcon className="w-5 h-7" />
+                <span className="ml-1 sm:inline">Add New Lead</span>
+              </button>
             </div>
           </div>
 
@@ -643,6 +704,75 @@ const AssignLeads = () => {
           )}
         </div>
       </div>
+      
+      {/* Add New Lead Modal */}
+      {isAddModalOpen && (
+        <div className="modal">
+          <div className="modal-content">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold">Add New Lead</h2>
+              <button onClick={() => setIsAddModalOpen(false)}>
+                <XIcon className="text-gray-500 hover:text-gray-700" />
+              </button>
+            </div>
+            <form onSubmit={handleAddNewLead} className="space-y-4">
+              <div>
+                <label htmlFor="name" className="block font-medium text-gray-700">Name</label>
+                <input
+                  type="text"
+                  id="name"
+                  value={newLead.name}
+                  onChange={(e) => setNewLead({ ...newLead, name: e.target.value })}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#F4A300] focus:ring-[#F4A300]"
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="phone" className="block text-sm font-medium text-gray-700">Phone</label>
+                <input
+                  type="tel"
+                  id="phone"
+                  value={newLead.phone}
+                  onChange={(e) => setNewLead({ ...newLead, phone: e.target.value })}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#F4A300] focus:ring-[#F4A300]"
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="interest" className="block text-sm font-medium text-gray-700">Interest</label>
+                <textarea
+                  id="interest"
+                  value={newLead.interest}
+                  onChange={(e) => setNewLead({ ...newLead, interest: e.target.value })}
+                  rows="3"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#F4A300] focus:ring-[#F4A300]"
+                ></textarea>
+              </div>
+              <div>
+                <label htmlFor="source" className="block text-sm font-medium text-gray-700">Source</label>
+                <select
+                  id="source"
+                  value={newLead.source}
+                  onChange={(e) => setNewLead({ ...newLead, source: e.target.value })}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#F4A300] focus:ring-[#F4A300]"
+                >
+                  <option value="social_media">Social Media</option>
+                  <option value="cold_call">Cold Call</option>
+                  <option value="referral">Referral</option>
+                  <option value="website">Website</option>
+                  <option value="event">Event</option>
+                </select>
+              </div>
+              <button
+                type="submit"
+                className="w-full py-2 px-4 rounded-md text-white bg-[#F4A300] hover:bg-[#e6b82a] transition-colors duration-200"
+              >
+                Save New Lead
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -344,6 +344,11 @@ const ProspectsDashboard = () => {
                 >
                   Clear Filters
                 </button>
+                <button
+                  onClick={handleExport}
+                  className="px-4 py-2 bg-[#F4A300] border border-gray-300 text-sm font-medium rounded-md text-white hover:bg-[#333333]">
+                     Export
+                </button>
               </div>
 
               {/* Prospects Table */}
@@ -414,13 +419,6 @@ const ProspectsDashboard = () => {
                   Next
                 </button>
               </div>
-              <button
-                                    onClick={handleExport}
-                                    className="bg-[#F4A300] mt-4 text-white px-4 py-2 rounded-lg hover:bg-[#e69500] flex items-center transition-colors"
-                                  >
-                                    <FiDownload className="mr-2" />
-                                    Export
-                                  </button>
             </div>
           </>
         )}

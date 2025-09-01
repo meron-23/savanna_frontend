@@ -297,7 +297,14 @@ const OfficeSiteVisits = () => {
         {/* Header and "Register Visit" button */}
         <div className="flex justify-between items-center bg-white rounded-lg shadow-md p-4 md:p-6">
           <h2 className="text-2xl font-bold text-gray-800">Office and Site Visits</h2>
+          <button
+                onClick={openRegisterModal}
+                className="inline-flex items-center px-4 py-2 mt-4 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#F4A300] hover:bg-[#333333] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#F4A300]"
+              >
+                Register New Visit
+          </button>
         </div>
+        
         
         {/* Filter and Summary Section */}
         <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
@@ -419,12 +426,6 @@ const OfficeSiteVisits = () => {
                 )}
               </tbody>
             </table>
-            <button
-                onClick={openRegisterModal}
-                className="inline-flex items-center px-4 py-2 mt-4 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#F4A300] hover:bg-[#333333] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#F4A300]"
-              >
-                Register New Visit
-          </button>
           </div>
         </div>
       </div>

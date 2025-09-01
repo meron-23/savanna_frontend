@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { FiUser, FiSend, FiX, FiSearch, FiRefreshCw, FiChevronDown } from 'react-icons/fi';
+import { FiUser, FiSend, FiX, FiSearch, FiRefreshCw, FiChevronDown, FiPlus } from 'react-icons/fi';
 
 // Import your local data
 import localData from '../data.json';
@@ -15,6 +15,15 @@ const SupervisorLeads = () => {
   const [error, setError] = useState(null);
   const [statusFilter, setStatusFilter] = useState('new');
   const [sourceFilter, setSourceFilter] = useState('');
+  const [showAddLeadModal, setShowAddLeadModal] = useState(false);
+  const [newLead, setNewLead] = useState({
+    name: '',
+    phone: '',
+    interest: '',
+    source: 'website',
+    status: 'new'
+  });
+  const [formErrors, setFormErrors] = useState({});
 
   // Load data from local JSON
   useEffect(() => {
@@ -114,6 +123,68 @@ const SupervisorLeads = () => {
     }
   };
 
+  // Handle adding a new lead
+  const handleAddNewLead = () => {
+    // Validate form
+    const errors = {};
+    if (!newLead.name.trim()) errors.name = 'Name is required';
+    if (!newLead.phone.trim()) errors.phone = 'Phone number is required';
+    if (!newLead.interest.trim()) errors.interest = 'Interest is required';
+    
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+    
+    // Clear errors
+    setFormErrors({});
+    
+    // Create a new lead object
+    const newLeadData = {
+      id: Math.max(...leads.map(lead => lead.id), 0) + 1,
+      name: newLead.name,
+      phone: newLead.phone,
+      interest: newLead.interest,
+      source: newLead.source,
+      status: newLead.status,
+      date_added: new Date().toISOString()
+    };
+    
+    // Add the new lead to the leads array
+    const updatedLeads = [...leads, newLeadData];
+    setLeads(updatedLeads);
+    
+    // Reset form and close modal
+    setNewLead({
+      name: '',
+      phone: '',
+      interest: '',
+      source: 'website',
+      status: 'new'
+    });
+    setShowAddLeadModal(false);
+    
+    // Show success message
+    alert('Lead added successfully!');
+  };
+
+  // Handle input change for new lead form
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewLead({
+      ...newLead,
+      [name]: value
+    });
+    
+    // Clear error when field is updated
+    if (formErrors[name]) {
+      setFormErrors({
+        ...formErrors,
+        [name]: ''
+      });
+    }
+  };
+
   // Refresh data
   const handleRefresh = () => {
     setSearchTerm('');
@@ -134,7 +205,9 @@ const SupervisorLeads = () => {
 
   return (
     <div className="p-4 md:p-6">
-      <h1 className="text-3xl font-bold mb-2 mb-8">Viewing and managing leads assignment</h1>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold">Viewing and managing leads assignment</h1>
+      </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Leads List Column */}
@@ -183,6 +256,13 @@ const SupervisorLeads = () => {
                 </select>
                 <FiChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
               </div>
+              <button
+                onClick={() => setShowAddLeadModal(true)}
+                className="bg-[#F4A300] hover:bg-[#333333] text-white px-4 py-2 rounded-md flex items-center"
+              >
+                <FiPlus className="mr-2" />
+                Add New Lead
+              </button>
             </div>
           </div>
 
@@ -201,6 +281,7 @@ const SupervisorLeads = () => {
                     </th>
                     <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                     <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Interest</th>
                     <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Source</th>
                     <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                   </tr>
@@ -227,6 +308,9 @@ const SupervisorLeads = () => {
                         </td>
                         <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
                           {lead.phone || 'N/A'}
+                        </td>
+                        <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {lead.interest || 'N/A'}
                         </td>
                         <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
                           <span className={`px-2 py-1 rounded-full text-xs ${
@@ -369,6 +453,111 @@ const SupervisorLeads = () => {
           )}
         </div>
       </div>
+
+      {/* Add New Lead Modal */}
+      {showAddLeadModal && (
+        <div className="fixed inset-0 bg-gray-700 bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-bold text-gray-800">Add New Lead</h3>
+                <button
+                  onClick={() => setShowAddLeadModal(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <FiX className="w-6 h-6" />
+                </button>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={newLead.name}
+                    onChange={handleInputChange}
+                    className={`w-full px-3 py-2 border rounded-md ${formErrors.name ? 'border-red-500' : 'border-gray-300'}`}
+                    placeholder="Enter lead's name"
+                  />
+                  {formErrors.name && <p className="mt-1 text-sm text-red-600">{formErrors.name}</p>}
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number *</label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={newLead.phone}
+                    onChange={handleInputChange}
+                    className={`w-full px-3 py-2 border rounded-md ${formErrors.phone ? 'border-red-500' : 'border-gray-300'}`}
+                    placeholder="Enter phone number"
+                  />
+                  {formErrors.phone && <p className="mt-1 text-sm text-red-600">{formErrors.phone}</p>}
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Interest *</label>
+                  <input
+                    type="text"
+                    name="interest"
+                    value={newLead.interest}
+                    onChange={handleInputChange}
+                    className={`w-full px-3 py-2 border rounded-md ${formErrors.interest ? 'border-red-500' : 'border-gray-300'}`}
+                    placeholder="e.g., Apartment, Commercial Property"
+                  />
+                  {formErrors.interest && <p className="mt-1 text-sm text-red-600">{formErrors.interest}</p>}
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Source</label>
+                  <select
+                    name="source"
+                    value={newLead.source}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  >
+                    <option value="website">Website</option>
+                    <option value="social_media">Social Media</option>
+                    <option value="cold_call">Cold Call</option>
+                    <option value="survey">Survey</option>
+                    <option value="referral">Referral</option>
+                    <option value="event">Event</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                  <select
+                    name="status"
+                    value={newLead.status}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  >
+                    <option value="new">New</option>
+                    <option value="assigned">Assigned</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div className="mt-6 flex justify-end space-x-3">
+                <button
+                  onClick={() => setShowAddLeadModal(false)}
+                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleAddNewLead}
+                  className="px-4 py-2 bg-[#F4A300] text-white rounded-md hover:bg-[#e69500]"
+                >
+                  Add Lead
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

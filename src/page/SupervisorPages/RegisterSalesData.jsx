@@ -256,6 +256,12 @@ const RegisterSalesData = () => {
         {/* Header and "Register Sale" button */}
         <div className="flex flex-col sm:flex-row justify-between items-center bg-white rounded-lg shadow-md p-4 md:p-6 space-y-4 sm:space-y-0 sm:space-x-4">
           <h2 className="text-xl sm:text-2xl font-bold text-gray-800 text-center sm:text-left w-full sm:w-auto">Sales Dashboard</h2>
+          <button
+            onClick={openModal}
+            className="inline-flex mt-4 items-center justify-center w-full sm:w-auto px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#F4A300] hover:bg-[#333333] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
+          >
+            Register New Sale
+        </button>
         </div>
 
         {/* Filter and Summary Section */}
@@ -407,12 +413,6 @@ const RegisterSalesData = () => {
                 )}
               </tbody>
             </table>
-            <button
-            onClick={openModal}
-            className="inline-flex mt-4 items-center justify-center w-full sm:w-auto px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#F4A300] hover:bg-[#333333] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
-          >
-            Register New Sale
-        </button>
           </div>
         </div>
 

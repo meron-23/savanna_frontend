@@ -398,6 +398,13 @@ const VisitsReport = () => {
                       <FiX className="mr-2" />
                       Clear Filters
                     </button>
+                    <button
+                      onClick={handleExport}
+                      className="border bg-[#F4A300] border-gray-300 text-white px-4 py-2 rounded-lg hover:bg-[#333333] flex items-center transition-colors"
+                    >
+                      <FiDownload className="mr-2" />
+                      Export
+                    </button>
                   </div>
                 </div>
 
@@ -576,13 +583,6 @@ const VisitsReport = () => {
                   </button>
                 </div>
               )}
-               <button
-                      onClick={handleExport}
-                      className="bg-[#F4A300] mt-4 text-white px-4 py-2 rounded-lg hover:bg-[#e69500] flex items-center transition-colors"
-                    >
-                      <FiDownload className="mr-2" />
-                      Export
-                    </button>
             </div>
           </>
         )}

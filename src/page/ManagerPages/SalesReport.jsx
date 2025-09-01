@@ -236,11 +236,18 @@ const SalesReport = () => {
               <span className="text-sm text-gray-600 mr-4">{filteredSales.length} sales found</span>
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className="flex items-center px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                className="flex items-center px-3 py-2 border border-gray-300 rounded-lg text-sm mr-2"
               >
                 <FiFilter className="mr-2" />
                 Filters
               </button>
+              <button
+                onClick={handleExport}
+                className="sm:mt-0 flex items-center px-4 py-2 bg-[#F4A300] text-white rounded-lg hover:bg-[#333333] transition-colors"
+              >
+                <FiDownload className="mr-2" />
+                Export CSV
+          </button>
             </div>
           </div>
 
@@ -415,13 +422,6 @@ const SalesReport = () => {
               </button>
             </div>
           )}
-          <button
-            onClick={handleExport}
-            className="sm:mt-0 flex items-center px-4 py-2 bg-[#F4A300] text-white rounded-lg hover:bg-[#e69500] transition-colors"
-          >
-            <FiDownload className="mr-2" />
-            Export CSV
-          </button>
         </div>
       </div>
     </div>
