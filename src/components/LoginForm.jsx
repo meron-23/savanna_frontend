@@ -4,7 +4,7 @@ import { FcGoogle } from 'react-icons/fc';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 import { UserContext } from '../context/UserContext';
 import { Link } from 'react-router-dom';
-
+import logo from '../assets/savannacrm.png';
 // Import your local data
 import localData from '../data.json';
 
@@ -116,6 +116,9 @@ const AuthForm = () => {
     <div className="h-screen flex items-center justify-center bg-gray-50 py-8 px-4 sm:px-6 lg:px-8 overflow-hidden">
       <div className="w-full max-w-sm mx-auto">
         <div className="text-center mb-6">
+          <div className="w-16 h-16 mb-2 flex items-center justify-center bg-white rounded-lg shadow-sm ml-34">
+          <img src={logo} alt="Savanna CRM Logo" className="w-12 h-12 object-contain" />
+        </div>
           <h1 className="text-3xl font-bold text-[#F4A300] mb-2">Savanna</h1>
           <h2 className="text-2xl font-bold text-gray-800">Welcome Back</h2>
           <p className="text-gray-600 mt-2 text-sm">
