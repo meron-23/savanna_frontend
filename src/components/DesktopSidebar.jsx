@@ -169,20 +169,24 @@ const DesktopSidebar = ({
       ${isSidebarOpen ? 'w-64' : 'w-20'}
       p-4 transition-all duration-300 ease-in-out overflow-hidden`}
     >
-      {/* Header Section */}
-      <div className={`flex ${isSidebarOpen ? 'justify-around' : 'flex-col'} items-center ${isSidebarOpen ? 'mb-10' : 'mb-5'}`}>
-        <div className="flex items-center gap-3 justify-center">
-          <div className="w-12 h-12 rounded-lg ">
-            <img src={img} alt="" className='bg-white rounded' />
+      {/* Header Section - Fixed */}
+      <div className="flex-shrink-0">
+        <div className={`flex ${isSidebarOpen ? 'justify-between items-center' : 'flex-col items-center'} mb-6`}>
+          {/* Logo and Brand Name */}
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 flex items-center justify-center bg-white rounded-lg">
+              <img src={img} alt="Savanna CRM Logo" className="w-8 h-8 object-contain" />
+            </div>
+            {isSidebarOpen && (
+              <span className="text-xl font-bold text-white">Savanna</span>
+            )}
           </div>
-          {isSidebarOpen && (
-            <span className="text-xl font-bold text-white">Savanna</span>
-          )}
-        </div>
 
-        {/* Toggle Button */}
-        <div className={`${isSidebarOpen ? 'mt-0 ml-2 self-end' : 'mt-4'}`}>
-          <button onClick={toggleSidebar} className="text-gray-300 focus:outline-none">
+          {/* Toggle Button */}
+          <button 
+            onClick={toggleSidebar} 
+            className="text-gray-300 hover:text-white focus:outline-none"
+          >
             <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
@@ -191,7 +195,7 @@ const DesktopSidebar = ({
       </div>
 
       {/* Nav Section */}
-      <nav className="mb-8 flex-grow">
+      <nav className="flex-grow mb-8">
         {isSidebarOpen && (
           <h3 className="text-xs font-semibold text-gray-400 uppercase mb-4 px-2">
             OVERVIEW
@@ -313,10 +317,12 @@ const DesktopSidebar = ({
         </ul>
       </nav>
 
-      {/* Footer User Info */}
-      <h1 className={`font-bold ${isSidebarOpen ? 'text-base' : 'hidden'} mb-5 text-gray-300`}>
-        {user}
-      </h1>
+      {/* Footer User Info - Fixed at bottom */}
+      <div className="flex-shrink-0 mt-auto pt-4 border-t border-gray-700">
+        <h1 className={`font-bold text-center ${isSidebarOpen ? 'text-base' : 'text-sm'} text-gray-300`}>
+          {isSidebarOpen ? user : user?.charAt(0)?.toUpperCase()}
+        </h1>
+      </div>
     </aside>
   );
 };

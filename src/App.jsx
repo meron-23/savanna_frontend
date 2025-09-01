@@ -12,12 +12,14 @@ import { Settings } from 'lucide-react';
 import Setting from './page/Settings';
 import ForgotPassword from './components/ForgotPassword';
 import Admin from './page/admin/AdminDasboard';
+import { ThemeProvider } from './context/ThemeContext';
 
 
 
 function App() {
   // console.log(UserProvider);
   return (
+  <ThemeProvider>
     <UserProvider>
       <Router>
         <Routes>
@@ -33,6 +35,7 @@ function App() {
         </Routes>
       </Router>
     </UserProvider>
+  </ThemeProvider>
   );
 }
 

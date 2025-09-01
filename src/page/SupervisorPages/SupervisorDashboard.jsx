@@ -546,7 +546,7 @@ const StatCard = ({ title, value }) => (
 );
 
 const StatCardSmall = ({ title, value }) => (
-  <div className="bg-[#333333] p-4 rounded-lg hover:bg-[#444444] transition-colors">
+  <div className="bg-white p-4 rounded-lg hover:bg-[#444444] transition-colors">
     <h5 className="text-[#F4A300]">{title}</h5>
     <p className="text-xl font-bold text-[#F4A300]">{value}</p>
   </div>
