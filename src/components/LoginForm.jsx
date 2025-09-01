@@ -4,9 +4,11 @@ import { FcGoogle } from 'react-icons/fc';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 import { UserContext } from '../context/UserContext';
 import { Link } from 'react-router-dom';
-import logo from '../assets/savannacrm.png';
+
 // Import your local data
 import localData from '../data.json';
+// Import your logo
+import logo from '../assets/savannacrm.png'; // Make sure to add your logo to this path
 
 const AuthForm = () => {
   const navigate = useNavigate();
@@ -113,27 +115,31 @@ const AuthForm = () => {
   }, []);
 
   return (
-    <div className="h-screen flex items-center justify-center bg-gray-50 py-8 px-4 sm:px-6 lg:px-8 overflow-hidden">
-      <div className="w-full max-w-sm mx-auto">
-        <div className="text-center mb-6">
-          <div className="w-16 h-16 mb-2 flex items-center justify-center bg-white rounded-lg shadow-sm ml-34">
-          <img src={logo} alt="Savanna CRM Logo" className="w-12 h-12 object-contain" />
+    <div className="h-screen flex flex-col items-center justify-center bg-gray-50 py-4 px-4 sm:px-6 lg:px-8 overflow-hidden">
+      {/* Logo at the very top */}
+      <div className="mb-4 flex flex-col items-center">
+        <div className="w-14 h-14 mb-2 flex items-center justify-center bg-white rounded-lg shadow-sm">
+          <img src={logo} alt="Savanna CRM Logo" className="w-10 h-10 object-contain" />
         </div>
-          <h1 className="text-3xl font-bold text-[#F4A300] mb-2">Savanna</h1>
-          <h2 className="text-2xl font-bold text-gray-800">Welcome Back</h2>
-          <p className="text-gray-600 mt-2 text-sm">
+        <h1 className="text-xl font-bold text-[#F4A300]">Savanna CRM</h1>
+      </div>
+      
+      <div className="w-full max-w-sm mx-auto overflow-y-auto" style={{ maxHeight: 'calc(100vh - 120px)' }}>
+        <div className="text-center mb-4">
+          <h2 className="text-lg font-bold text-gray-800">Welcome Back</h2>
+          <p className="text-gray-600 mt-1 text-xs">
             Enter your email and password to access your account.
           </p>
         </div>
         
-        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-3 mb-4 rounded text-sm">
+        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-2 mb-3 rounded text-xs">
           <p className="font-bold">Demo Mode</p>
           <p>Pre-filled with demo credentials</p>
         </div>
 
-        <form className="space-y-3" onSubmit={handleSubmit}>
+        <form className="space-y-2" onSubmit={handleSubmit}>
           <div>
-            <label htmlFor="email" className="block text-gray-700 text-sm font-medium mb-1">
+            <label htmlFor="email" className="block text-gray-700 text-xs font-medium mb-1">
               Email
             </label>
             <input
@@ -148,7 +154,7 @@ const AuthForm = () => {
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-gray-700 text-sm font-medium mb-1">
+            <label htmlFor="password" className="block text-gray-700 text-xs font-medium mb-1">
               Password
             </label>
             <div className="relative">
@@ -177,21 +183,21 @@ const AuthForm = () => {
           
           <div className="flex items-center justify-between text-xs">
             <label className="flex items-center">
-              <input type="checkbox" className="mr-2 rounded" />
+              <input type="checkbox" className="mr-1 rounded" />
               <span className="text-gray-700">Remember Me</span>
             </label>
-            <Link to="/forgot-password" className="text-[#F4A300] hover:underline">
+            <Link to="/forgot-password" className="text-[#F4A300] hover:underline text-xs">
               Forgot Password?
             </Link>
           </div>
           
           {successMessage && (
-            <div className="p-2 bg-green-100 text-green-700 rounded-md text-sm">
+            <div className="p-2 bg-green-100 text-green-700 rounded-md text-xs">
               {successMessage}
             </div>
           )}
           {error && (
-            <div className="p-2 bg-red-100 text-red-700 rounded-md text-sm">
+            <div className="p-2 bg-red-100 text-red-700 rounded-md text-xs">
               {error}
             </div>
           )}
@@ -207,44 +213,38 @@ const AuthForm = () => {
           </button>
         </form>
 
-        <div className="flex items-center my-4">
+        <div className="flex items-center my-3">
           <div className="flex-grow border-t border-gray-300"></div>
           <span className="mx-2 text-gray-500 text-xs">Or continue with</span>
           <div className="flex-grow border-t border-gray-300"></div>
         </div>
 
-        <div className="flex justify-center mb-4">
+        <div className="flex justify-center mb-3">
           <button 
             onClick={mockGoogleLogin}
             disabled={isLoading}
-            className="flex items-center justify-center w-full border border-gray-300 rounded-md py-2 px-4 bg-white text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50 text-sm"
+            className="flex items-center justify-center w-full border border-gray-300 rounded-md py-2 px-4 bg-white text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50 text-xs"
           >
             <FcGoogle className="mr-2" /> 
             <span>Google</span>
           </button>
         </div>
 
-        <div className="p-2 bg-blue-50 rounded-md mb-3">
-          <p className="text-center text-blue-700 text-xs font-medium">
+        <div className="p-2 bg-blue-50 rounded-md mb-2 text-xs">
+          <p className="text-center text-blue-700 font-medium">
             Demo Accounts
           </p>
-          <div className="text-xs text-blue-600 mt-1 text-center">
+          <div className="text-blue-600 mt-1 text-center">
             <div>Manager: demo@gmail.com / 123456 </div>
             <div>Sales Agent: chala@gmail.com / 123456</div>
             <div>Supervisor: mohammed@example.com / 123456</div>
           </div>
         </div>
 
-        <p className="text-center text-gray-500 text-xs">
+        <p className="text-center text-gray-500 text-xs pb-2">
           Don't have an account? Contact your administrator.
         </p>
       </div>
-
-      <style jsx>{`
-        body {
-          overflow: hidden;
-        }
-      `}</style>
     </div>
   );
 };
