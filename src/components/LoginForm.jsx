@@ -118,10 +118,9 @@ const AuthForm = () => {
     <div className="h-screen flex flex-col items-center justify-center bg-gray-50 py-4 px-4 sm:px-6 lg:px-8 overflow-hidden">
       {/* Logo at the very top */}
       <div className="mb-4 flex flex-col items-center">
-        <div className="w-14 h-14 mb-2 flex items-center justify-center bg-white rounded-lg shadow-sm">
-          <img src={logo} alt="Savanna CRM Logo" className="w-10 h-10 object-contain" />
+        <div className="mb-2 flex items-center justify-center">
+          <img src={logo} alt="Savanna CRM Logo" className="w-32 h-24" />
         </div>
-        <h1 className="text-xl font-bold text-[#F4A300]">Savanna CRM</h1>
       </div>
       
       <div className="w-full max-w-sm mx-auto overflow-y-auto" style={{ maxHeight: 'calc(100vh - 120px)' }}>

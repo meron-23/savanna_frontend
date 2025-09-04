@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import * as XLSX from 'xlsx';
 
 // Mock data to simulate an API call or local data file.
 const mockData = {
@@ -198,6 +199,14 @@ const PlusIcon = (props) => (
   </svg>
 );
 
+const UploadIcon = (props) => (
+  <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+    <polyline points="17 8 12 3 7 8"></polyline>
+    <line x1="12" y1="3" x2="12" y2="15"></line>
+  </svg>
+);
+
 
 const AssignLeads = () => {
   const [leads, setLeads] = useState([]);
@@ -211,8 +220,8 @@ const AssignLeads = () => {
   const [statusFilter, setStatusFilter] = useState('new');
   const [sourceFilter, setSourceFilter] = useState('');
   const [statusMessage, setStatusMessage] = useState(null);
-  // New state for the add lead modal
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [newLead, setNewLead] = useState({ name: '', phone: '', interest: '', source: 'social_media' });
 
 
@@ -253,7 +262,7 @@ const AssignLeads = () => {
   const filteredLeads = useMemo(() => {
     return leads.filter(lead => {
       const matchesSearch = (lead.name && lead.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                            (lead.phone && lead.phone.includes(searchTerm));
+        (lead.phone && lead.phone.includes(searchTerm));
       const matchesStatus = statusFilter === 'all' || lead.status === statusFilter;
       const matchesSource = !sourceFilter || lead.source === sourceFilter;
       return matchesSearch && matchesStatus && matchesSource;
@@ -338,8 +347,7 @@ const AssignLeads = () => {
     loadData();
     showStatusMessage('Data refreshed.');
   };
-  
-  // New function to handle adding a new lead
+
   const handleAddNewLead = (e) => {
     e.preventDefault();
     if (!newLead.name || !newLead.phone) {
@@ -347,7 +355,7 @@ const AssignLeads = () => {
       return;
     }
 
-    const newLeadId = Math.max(...leads.map(l => l.id)) + 1;
+    const newLeadId = leads.length > 0 ? Math.max(...leads.map(l => l.id)) + 1 : 1;
     const leadToAdd = {
       id: newLeadId,
       ...newLead,
@@ -360,6 +368,69 @@ const AssignLeads = () => {
     setIsAddModalOpen(false);
     setNewLead({ name: '', phone: '', interest: '', source: 'social_media' });
     showStatusMessage(`New lead "${newLead.name}" added successfully!`);
+  };
+
+  const handleImportLeads = (e) => {
+    const file = e.target.files[0];
+    if (!file) {
+      showStatusMessage('No file selected.', 'error');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const data = new Uint8Array(event.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+        if (json.length <= 1) {
+          showStatusMessage('The imported file is empty or has no data.', 'error');
+          return;
+        }
+
+        const headers = json[0].map(h => h.toLowerCase().trim());
+        const expectedHeaders = ['name', 'phone', 'interest', 'source'];
+
+        const isValid = expectedHeaders.every(h => headers.includes(h));
+        if (!isValid) {
+          showStatusMessage('Invalid file headers. Required headers: Name, Phone, Interest, Source.', 'error');
+          return;
+        }
+
+        const newLeadsFromImport = json.slice(1).map((row, index) => {
+          const leadData = {};
+          headers.forEach((header, i) => {
+            leadData[header] = row[i];
+          });
+          const lastId = leads.length > 0 ? Math.max(...leads.map(l => l.id)) : 0;
+          return {
+            id: lastId + index + 1,
+            name: leadData.name,
+            phone: String(leadData.phone),
+            interest: leadData.interest || '',
+            status: 'new',
+            is_called: false,
+            date_added: new Date().toISOString(),
+            source: leadData.source || 'import'
+          };
+        }).filter(lead => lead.name && lead.phone);
+
+        if (newLeadsFromImport.length > 0) {
+          setLeads(prevLeads => [...prevLeads, ...newLeadsFromImport]);
+          showStatusMessage(`${newLeadsFromImport.length} leads imported successfully!`, 'success');
+        } else {
+          showStatusMessage('No valid leads found in the file.', 'error');
+        }
+        setIsImportModalOpen(false);
+      } catch (err) {
+        console.error("Error reading file:", err);
+        showStatusMessage('Failed to import file. Please check the file format.', 'error');
+      }
+    };
+    reader.readAsArrayBuffer(file);
   };
 
   const allLeadsSelected = filteredLeads.length > 0 && selectedLeads.length === filteredLeads.length;
@@ -396,10 +467,10 @@ const AssignLeads = () => {
           box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         @keyframes fadeinout {
-          0% { opacity: 0; transform: translateY(-20px); }
-          10% { opacity: 1; transform: translateY(0); }
-          90% { opacity: 1; transform: translateY(0); }
-          100% { opacity: 0; transform: translateY(-20px); }
+          0% { opacity: 0; transform: translateY(-20px) translateX(-50%); }
+          10% { opacity: 1; transform: translateY(0) translateX(-50%); }
+          90% { opacity: 1; transform: translateY(0) translateX(-50%); }
+          100% { opacity: 0; transform: translateY(-20px) translateX(-50%); }
         }
         .modal {
             position: fixed;
@@ -421,6 +492,18 @@ const AssignLeads = () => {
             width: 90%;
             max-width: 500px;
         }
+        input[type="text"], input[type="tel"], textarea, select, .file-upload-input {
+          padding: 0.75rem 1rem;
+          border: 1px solid #d1d5db;
+          border-radius: 0.375rem;
+          width: 100%;
+          transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        input:focus, textarea:focus, select:focus {
+          outline: none;
+          border-color: #F4A300;
+          box-shadow: 0 0 0 3px rgba(244, 163, 0, 0.2);
+        }
         `}
       </style>
 
@@ -431,7 +514,7 @@ const AssignLeads = () => {
       )}
 
       <h1 className="text-2xl font-bold mb-6 text-gray-800">Assign Leads</h1>
-      
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 bg-white rounded-lg shadow-md p-4">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
@@ -475,13 +558,22 @@ const AssignLeads = () => {
                 </select>
                 <ChevronDownIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-400" />
               </div>
-              <button
-                onClick={() => setIsAddModalOpen(true)}
-                className="flex items-center justify-center p-2 rounded-md bg-[#F4A300] text-white hover:bg-[#333333] transition-colors duration-200"
-              >
-                <PlusIcon className="w-5 h-7" />
-                <span className="ml-1 sm:inline">Add New Lead</span>
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setIsAddModalOpen(true)}
+                  className="flex items-center justify-center p-2 rounded-md bg-[#F4A300] text-white hover:bg-[#333333] transition-colors duration-200"
+                >
+                  <PlusIcon className="w-5 h-7" />
+                  <span className="ml-1 hidden sm:inline">Add Lead</span>
+                </button>
+                <button
+                  onClick={() => setIsImportModalOpen(true)}
+                  className="flex items-center justify-center p-2 rounded-md bg-blue-500 text-white hover:bg-blue-700 transition-colors duration-200"
+                >
+                  <UploadIcon className="w-5 h-7" />
+                  <span className="ml-1 hidden sm:inline">Import</span>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -509,8 +601,8 @@ const AssignLeads = () => {
                   filteredLeads.map(lead => {
                     const isSelected = selectedLeads.some(l => l.id === lead.id);
                     return (
-                      <tr 
-                        key={lead.id} 
+                      <tr
+                        key={lead.id}
                         className={`hover:bg-gray-50 cursor-pointer ${isSelected ? 'bg-blue-50' : ''} ${lead.is_called ? 'bg-green-50' : ''}`}
                         onClick={() => handleLeadSelect(lead)}
                       >
@@ -531,23 +623,23 @@ const AssignLeads = () => {
                         <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
                           <span className={`px-2 py-1 rounded-full text-xs ${
                             lead.source === 'social_media' ? 'bg-purple-100 text-purple-800' :
-                            lead.source === 'cold_call' ? 'bg-blue-100 text-blue-800' :
-                            lead.source === 'survey' ? 'bg-green-100 text-green-800' :
-                            lead.source === 'referral' ? 'bg-yellow-100 text-yellow-800' :
-                            lead.source === 'website' ? 'bg-indigo-100 text-indigo-800' :
-                            lead.source === 'event' ? 'bg-pink-100 text-pink-800' :
-                            'bg-gray-100 text-gray-800'
-                          }`}>
+                              lead.source === 'cold_call' ? 'bg-blue-100 text-blue-800' :
+                                lead.source === 'survey' ? 'bg-green-100 text-green-800' :
+                                  lead.source === 'referral' ? 'bg-yellow-100 text-yellow-800' :
+                                    lead.source === 'website' ? 'bg-indigo-100 text-indigo-800' :
+                                      lead.source === 'event' ? 'bg-pink-100 text-pink-800' :
+                                        'bg-gray-100 text-gray-800'
+                            }`}>
                             {formatSource(lead.source)}
                           </span>
                         </td>
                         <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
                           <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                             lead.is_called ? 'bg-green-400 text-green-900' :
-                            lead.status === 'new' ? 'bg-blue-100 text-blue-800' :
-                            lead.status === 'assigned' ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-gray-100 text-gray-800'
-                          }`}>
+                              lead.status === 'new' ? 'bg-blue-100 text-blue-800' :
+                                lead.status === 'assigned' ? 'bg-yellow-100 text-yellow-800' :
+                                  'bg-gray-100 text-gray-800'
+                            }`}>
                             {lead.is_called ? 'Called' : lead.status}
                           </span>
                         </td>
@@ -556,10 +648,10 @@ const AssignLeads = () => {
                             onClick={(e) => { e.stopPropagation(); handleCallLead(lead.id); }}
                             disabled={lead.is_called}
                             className={`flex items-center space-x-1 p-1.5 rounded-full transition-colors duration-200 ${
-                              lead.is_called 
-                                ? 'bg-gray-200 text-gray-500 cursor-not-allowed' 
+                              lead.is_called
+                                ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
                                 : 'bg-[#F4A300] text-white hover:bg-[#e6b82a]'
-                            }`}
+                              }`}
                           >
                             <PhoneIcon size={14} />
                             <span className="sr-only">Call</span>
@@ -572,7 +664,7 @@ const AssignLeads = () => {
                   <tr>
                     <td colSpan="6" className="text-center py-8 text-gray-500">
                       No leads available for assignment
-                      <button 
+                      <button
                         onClick={handleRefresh}
                         className="mt-2 flex items-center justify-center mx-auto text-[#F4A300]"
                       >
@@ -597,7 +689,7 @@ const AssignLeads = () => {
               <RefreshIcon />
             </button>
           </div>
-          
+
           {selectedLeads.length > 0 ? (
             <div className="space-y-4">
               <div className="p-4 border border-gray-200 rounded-lg">
@@ -681,7 +773,7 @@ const AssignLeads = () => {
                   (!selectedSupervisorId && !selectedAgent) || isLoading
                     ? 'bg-gray-400 cursor-not-allowed'
                     : 'bg-[#F4A300] hover:bg-[#e6b82a]'
-                }`}
+                  }`}
               >
                 {isLoading ? (
                   <>
@@ -704,10 +796,10 @@ const AssignLeads = () => {
           )}
         </div>
       </div>
-      
+
       {/* Add New Lead Modal */}
       {isAddModalOpen && (
-        <div className="modal">
+        <div className="modal" onClick={(e) => e.target.className === 'modal' && setIsAddModalOpen(false)}>
           <div className="modal-content">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">Add New Lead</h2>
@@ -723,7 +815,7 @@ const AssignLeads = () => {
                   id="name"
                   value={newLead.name}
                   onChange={(e) => setNewLead({ ...newLead, name: e.target.value })}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#F4A300] focus:ring-[#F4A300]"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#F4A300] focus:ring-[#F4A300] px-3 py-2"
                   required
                 />
               </div>
@@ -734,7 +826,7 @@ const AssignLeads = () => {
                   id="phone"
                   value={newLead.phone}
                   onChange={(e) => setNewLead({ ...newLead, phone: e.target.value })}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#F4A300] focus:ring-[#F4A300]"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#F4A300] focus:ring-[#F4A300] px-3 py-2"
                   required
                 />
               </div>
@@ -745,7 +837,7 @@ const AssignLeads = () => {
                   value={newLead.interest}
                   onChange={(e) => setNewLead({ ...newLead, interest: e.target.value })}
                   rows="3"
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#F4A300] focus:ring-[#F4A300]"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#F4A300] focus:ring-[#F4A300] px-3 py-2"
                 ></textarea>
               </div>
               <div>
@@ -754,7 +846,7 @@ const AssignLeads = () => {
                   id="source"
                   value={newLead.source}
                   onChange={(e) => setNewLead({ ...newLead, source: e.target.value })}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#F4A300] focus:ring-[#F4A300]"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#F4A300] focus:ring-[#F4A300] px-3 py-2"
                 >
                   <option value="social_media">Social Media</option>
                   <option value="cold_call">Cold Call</option>
@@ -770,6 +862,37 @@ const AssignLeads = () => {
                 Save New Lead
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Import Leads Modal */}
+      {isImportModalOpen && (
+        <div className="modal" onClick={(e) => e.target.className === 'modal' && setIsImportModalOpen(false)}>
+          <div className="modal-content">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold">Import Leads from File</h2>
+              <button onClick={() => setIsImportModalOpen(false)}>
+                <XIcon className="text-gray-500 hover:text-gray-700" />
+              </button>
+            </div>
+            <div className="space-y-4">
+              <p className="text-sm text-gray-600">
+                Please upload an **Excel (.xlsx)** or **CSV (.csv)** file. The file must contain the following columns: **Name, Phone, Interest, and Source**.
+              </p>
+              <div>
+                <label htmlFor="file-upload" className="block text-sm font-medium text-gray-700">
+                  Select File
+                </label>
+                <input
+                  type="file"
+                  id="file-upload"
+                  accept=".xlsx, .xls, .csv"
+                  onChange={handleImportLeads}
+                  className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                />
+              </div>
+            </div>
           </div>
         </div>
       )}
